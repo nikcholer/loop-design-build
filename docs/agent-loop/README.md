@@ -36,6 +36,13 @@ The backbone of this stateless setup is the `docs/state/` folder. The flow uses 
   - Upon waking and reading the response, the agent **must update the original requirements/planning documents** (to ensure the issue never recurs).
   - Both TBD files are archived into a historical directory using `YYYYMMDDHHMMSS_` prefixes.
 
+### 5. The "Clean Slate" Trialling Strategy
+To prevent contamination between the meta-architecture design and active application development, this framework relies on bounding executions in separate *trial repositories*.
+
+- Use the `init-trial.ps1` script to dynamically generate a clean sibling repository.
+- The script automatically scaffolds the `docs/state/` architecture with **blank, domain-agnostic templates**. 
+- The agent wakes up to this "clean slate", parses the raw constraints pasted into the target `planning.md` file by the human product owner, and fully synthesizes the custom backlog and system design before writing any code.
+
 ## Directory Structure Overview
 - `skill.md` - The master system instruction governing the agent's step-by-step logic.
 - `templates/` - Standardized schemas for the markdown-driven state memory `(handover, tbd, etc)`.

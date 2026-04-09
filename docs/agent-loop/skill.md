@@ -15,7 +15,10 @@ Before writing any code or altering the backlog, you MUST verify the state of un
 
 ## Phase 2: Context Intake
 1. Read `docs/state/handover.md` to understand exactly where the previous run left off.
-2. Read `docs/state/backlog.md` to identify your immediate next priority task. If the `handover.md` specifies a mid-flight task, continue it. Otherwise, pop the next item from `backlog.md`.
+2. Read `docs/state/backlog.md` to identify your immediate next priority task. 
+   - **Initialization Case:** If the `backlog.md` is in its initial unpopulated state, your absolute first priority is to analyze the data schema provided in `docs/planning.md` and use it to autonomously draft and populate the domain-specific epics into `backlog.md` before doing any code implementation.
+   - If `handover.md` specifies a mid-flight task, continue it.
+   - Otherwise, pop the next item from `backlog.md`.
 
 ## Phase 3: Execution & The TDD Loop
 1. Execute the work required for the current task.
