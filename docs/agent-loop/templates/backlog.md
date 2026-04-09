@@ -1,15 +1,11 @@
 # Project Backlog
 
 ## High Priority Queue
-- [ ] Parse CSV and define standard DTOs for `Products`
-- [ ] Create failing test for `Products` Data Access Layer
-- [ ] Implement `Products` Data Access Layer
-- [ ] Create failing test for `Products` REST endpoint
-- [ ] Implement `Products` REST endpoint
+- [ ] **Initialization:** Read `docs/planning.md` to analyze the provided domain schema and constraints. 
+- [ ] **Planning:** Based on the constraints in `planning.md`, replace these placeholder tasks with a generated, prioritized list of domain-specific tasks (e.g. "Create DTOs for X", "Write tests for Y").
 
 ## Medium Priority Queue
-- [ ] Standardize logging layer using Winston
+- [ ] *(Agent will populate based on schema analysis)*
 
 ## Icebox
-- [ ] Set up frontend scaffolding
-- [ ] Evaluate deployment CI/CD to AWS
+- [ ] *(Agent will populate based on schema analysis)*

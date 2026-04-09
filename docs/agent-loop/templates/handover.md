@@ -1,14 +1,16 @@
 # Handover Document
 
-**Last Agent Exited At:** [Timestamp]
+**Last Agent Exited At:** Initialization
 
 ## Primary Immediate Next Step
-- [Explicitly state the very first thing the waking agent should do. E.g. "Run `npm test` and observe the failing test for `UserService.ts`."]
+- **Wake up.** Review your instructions in `.agents/skills/agent-loop.md`.
+- Read `docs/planning.md` to understand the domain constraints.
+- Then, navigate to `docs/state/backlog.md` and complete the initial High Priority task (generating the project tasks based on the provided data schema).
 
 ## Active Context
-- **Current Epic/Goal:** [E.g., Implementing Data Access Layer for Users]
-- **Last File Modified:** `src/services/UserService.ts`
+- **Current Epic/Goal:** Initial Project Analysis & Backlog Generation
+- **Last File Modified:** None
 - **Current Blockers:** None
 
 ## Relevant Architectural Context
-- *Ensure you adhere strictly to the DTO boundaries established in `planning.md` for this feature.*
+- *Ensure you adhere strictly to the boundaries established in `planning.md` when proposing DTOs and Data Access Layers.*
