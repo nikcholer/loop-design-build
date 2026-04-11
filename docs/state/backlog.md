@@ -15,7 +15,7 @@
 
 - [x] **Automated backlog archival script:** Added `scripts/archive-backlog.ps1` implementing the procedure from `outer-loop-playbook.md`: scans `docs/state/backlog.md` for fully-completed sections (all items `[x]`), appends them to `backlog-archive.md` with a datestamp, removes them from the active file, and commits the pair.
 
-- [ ] **Pre-run health check script:** Add `scripts/check-health.ps1` that verifies: (a) no `tbd.md` without a matching `tbd-response.md`, (b) no uncommitted changes in `docs/state/`, (c) optionally runs `npm test -- --runInBand` if a `package.json` is detected. Prints `✅ Ready` or `❌ Fix before running`.
+- [x] **Pre-run health check script:** Added `scripts/check-health.ps1` to verify: (a) no `tbd.md` without a matching `tbd-response.md`, (b) no uncommitted changes in `docs/state/`, (c) optionally run `npm test -- --runInBand` when invoked with `-RunTestsIfPresent` and a `package.json` is present. Prints `✅ Ready` or `❌ Fix before running` and exits non-zero on failures.
 
 - [ ] **`progress.md` archival — same pattern as backlog:** Update `outer-loop-playbook.md` to document `progress-archive.md` archival on the same trigger as the backlog. The active `progress.md` should contain only the current sprint's entries.
 
