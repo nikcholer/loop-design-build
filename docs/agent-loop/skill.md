@@ -15,8 +15,9 @@ Before writing any code or altering the backlog, you MUST verify the state of un
 
 ## Phase 2: Context Intake
 1. Read `docs/agent-loop/standards.md` and internalize all coding standards. These apply to every line of code you write or modify in this session.
-2. Read `docs/state/handover.md` to understand exactly where the previous run left off.
-3. Read `docs/state/backlog.md` to identify your immediate next priority task. 
+2. Check `.agents/skills/` for any supplementary skill files beyond `agent-loop.md`. For each additional file or directory found, read its markdown entrypoint (`SKILL.md` for a directory-based skill, or the file itself for a standalone markdown skill) and internalize that guidance before beginning execution.
+3. Read `docs/state/handover.md` to understand exactly where the previous run left off.
+4. Read `docs/state/backlog.md` to identify your immediate next priority task. 
    - **Initialization Case:** If the `backlog.md` is in its initial unpopulated state, your absolute first priority is to analyze the data schema provided in `docs/planning.md` and use it to autonomously draft and populate the domain-specific epics into `backlog.md` before doing any code implementation.
    - If `handover.md` specifies a mid-flight task, continue it.
    - Otherwise, pop the next item from `backlog.md`.

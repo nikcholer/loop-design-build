@@ -2,6 +2,7 @@
 
 ## Self-Improvement Sprint 1
 
+- Completed the second Skill System task by updating both `.agents/skills/agent-loop.md` and `docs/agent-loop/skill.md` so Phase 2 now scans `.agents/skills/` for supplementary skills beyond `agent-loop.md` and internalizes their markdown entrypoints before execution begins.
 - Completed the first Skill System task by extending `init-trial.ps1` so new trial scaffolds seed `docs/planning.md` with a `## Skills` section that documents how operators list optional local skills to activate.
 - Implemented the helper-based copy flow by adding `scripts/inject-skill.ps1`, which reads skill names from the trial's `docs/planning.md` and copies matching skill folders or markdown files from `~/.agents/skills/` into the trial's `.agents/skills/` directory.
 - Documented the operator workflow in `docs/agent-loop/README.md`, including when to run `scripts/inject-skill.ps1 -TargetRepoPath <trial-repo>` after filling the planning document.

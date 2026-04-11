@@ -1,16 +1,15 @@
 # Agent Handover
 
 ## Current Sprint Context
-- **Current Epic/Goal:** Skill System - making skill activation repeatable inside trial repos.
+- **Current Epic/Goal:** Known Environment Gotchas - capture repeatable failure modes in operator guidance.
 - **Last File Edited:** `docs/state/handover.md`
-- **Current Status:** Completed the first Skill System item by adding a documented `## Skills` section to the scaffolded `docs/planning.md` template, implementing `scripts/inject-skill.ps1` to copy requested local skills into trial repos, and documenting the operator flow in `docs/agent-loop/README.md`.
+- **Current Status:** Completed the second Skill System item by updating both `.agents/skills/agent-loop.md` and `docs/agent-loop/skill.md` so Phase 2 now scans `.agents/skills/` for supplementary skills beyond `agent-loop.md` and reads each discovered skill entrypoint before execution starts.
 - **Current Blockers:** None.
 
 ## Relevant Architectural Context
-- *`init-trial.ps1` now seeds a dedicated `## Skills` section in each new trial's `docs/planning.md`, giving the operator a single source of truth for optional skill activation at planning time.*
-- *The new helper `scripts/inject-skill.ps1` reads that section, deduplicates listed skill names, and copies matching directories or `.md` files from `~/.agents/skills/` into the target repo's `.agents/skills/` folder.*
-- *`docs/agent-loop/README.md` now documents the helper-based workflow, which keeps `init-trial.ps1` focused on scaffolding while letting skill injection happen after the operator fills out the planning document.*
+- *The agent-loop instructions now keep scaffolded trial repos and the canonical `docs/agent-loop/skill.md` in lockstep, reducing drift between the copied skill file and the source documentation.*
+- *Phase 2 now explicitly handles both standalone markdown skills and directory-based skills with a `SKILL.md` entrypoint, matching the behavior introduced by `scripts/inject-skill.ps1`.*
 - *`docs/state/backlog.md` remains comfortably below the archival threshold, so no backlog size warning is needed in this handover.*
 
 ## Primary Immediate Next Step
-- Start the second Skill System item: update `.agents/skills/agent-loop.md` and `docs/agent-loop/skill.md` so Phase 2 explicitly scans `.agents/skills/` for any files beyond `agent-loop.md` and internalizes them before execution begins.
+- Start the first Known Environment Gotchas item: add a `## Known Environment Gotchas` section to `docs/agent-loop/outer-loop-playbook.md` documenting the PowerShell 5.1 UTF-8 BOM issue, including the safe `Out-File -Encoding utf8NoBOM` alternative and the option to strip the BOM with Node before seeding.

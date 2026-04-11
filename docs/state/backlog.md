@@ -25,7 +25,7 @@
 
 - [x] **Skill injection via `planning.md`:** `init-trial.ps1` now seeds a documented `## Skills` section in the `planning.md` template, and `scripts/inject-skill.ps1` copies the named skill folders or markdown files from `~/.agents/skills/` into the trial's `.agents/skills/` directory.
 
-- [ ] **Skill discovery in `skill.md`:** Add a Phase 2 step instructing the agent to check `.agents/skills/` for any files beyond `agent-loop.md` and internalize them as supplementary guidance before beginning work.
+- [x] **Skill discovery in `skill.md`:** Add a Phase 2 step instructing the agent to check `.agents/skills/` for any files beyond `agent-loop.md` and internalize them as supplementary guidance before beginning work.
 
 ## Known Environment Gotchas
 
