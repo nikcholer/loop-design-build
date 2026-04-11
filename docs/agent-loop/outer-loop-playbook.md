@@ -62,7 +62,41 @@ At any point between runs, the human orchestrator may:
 
 ---
 
+## Starting an Agent Run
+
+Run the following from the **root of the trial or harness repo** (`cd` to the correct directory first).
+
+### OpenAI Codex
+
+```powershell
+codex exec -m gpt-5.4 --dangerously-bypass-approvals-and-sandbox "Read .agents/skills/agent-loop.md and follow it precisely."
+```
+
+| Flag | Purpose |
+|------|---------|
+| `-m gpt-5.4` | Model selection — substitute the current best available model |
+| `--dangerously-bypass-approvals-and-sandbox` | Allows the agent to run shell commands and write files without per-action approval. Required for autonomous execution. |
+
+> **After the run:** always check `git status`. If the agent reports skipping the commit (citing "higher-priority repo instructions"), commit manually: `git add . && git commit -m "<semantic message>"`.
+
+### Gemini CLI
+
+```powershell
+gemini -p "Read docs/agent-loop/skill.md and follow it precisely."
+```
+
+> Gemini CLI reads the current directory context automatically. Point it at `skill.md` rather than the copied `.agents/skills/agent-loop.md` since the Gemini invocation does not require the separate skill registration step.
+
+### Choosing Between Providers
+
+- Both providers follow the same `skill.md` protocol — output quality and token cost are the main differentiators.
+- Use Codex when you want sandbox isolation and explicit per-tool approval visibility in the run log.
+- Use Gemini CLI for faster iteration when you trust the current backlog scope and want lower latency per run.
+
+---
+
 ## Known Environment Gotchas
+
 
 Capture environment-specific failures here once they have repeated often enough to deserve standing operator guidance.
 
