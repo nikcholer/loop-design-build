@@ -37,6 +37,6 @@
 
 - [x] **Token usage logging:** Added an optional `## Token Usage` section to `docs/agent-loop/templates/handover.md` so agents have a standard place to record approximate per-run token usage when that information is available.
 
-- [ ] **Milestone tagging reminder in health check:** When `check-health.ps1` detects all backlog items are complete, prompt the operator to tag a milestone before adding new work.
+- [x] **Milestone tagging reminder in health check:** When `check-health.ps1` detects all backlog items are complete, prompt the operator to tag a milestone before adding new work.
 
 - [ ] **Self-improvement mode:** Update `README.md` and `outer-loop-playbook.md` to document running the harness on itself (as demonstrated in this run): drop `docs/state/` directly into `loop-design-build`, write `docs/planning.md` describing the harness as the target codebase, and run `codex exec` from the root — no trial scaffolding required.

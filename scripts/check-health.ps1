@@ -9,6 +9,7 @@ $TbdRelativePath = 'docs/state/tbd.md'
 $TbdResponseRelativePath = 'docs/state/tbd-response.md'
 $StateDirectoryRelativePath = 'docs/state'
 $PackageJsonRelativePath = 'package.json'
+$BacklogRelativePath = 'docs/state/backlog.md'
 $GitStatusPorcelainArgument = '--porcelain'
 $GitStatusCommand = 'status'
 $GitRevParseCommand = 'rev-parse'
@@ -26,6 +27,35 @@ $PackageJsonMissingMessage = 'package.json not found; skipped npm test.'
 $TestsPassedMessage = 'npm test -- --runInBand passed.'
 $TestsRequestedMessage = 'Running npm test -- --runInBand.'
 $TestsSkippedMessage = 'Skipped npm test; use -RunTestsIfPresent to enable it when package.json exists.'
+$MilestoneReminderMessage = 'All backlog items are complete. Consider tagging a milestone before adding new work.'
+$ChecklistPattern = '(?m)^\s*[-*]\s+\[(?<state>[xX ])\]'
+
+function Test-AllBacklogItemsComplete {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$RepositoryRootPath
+    )
+
+    $backlogPath = Join-Path -Path $RepositoryRootPath -ChildPath $BacklogRelativePath
+    if (-not (Test-Path -Path $backlogPath)) {
+        return $false
+    }
+
+    $content = [System.IO.File]::ReadAllText($backlogPath)
+    $matches = [System.Text.RegularExpressions.Regex]::Matches($content, $ChecklistPattern)
+
+    if ($matches.Count -eq 0) {
+        return $false
+    }
+
+    foreach ($match in $matches) {
+        if ($match.Groups['state'].Value -eq ' ') {
+            return $false
+        }
+    }
+
+    return $true
+}
 
 function Test-GitRepository {
     param(
@@ -93,6 +123,10 @@ if (-not (Test-TbdState -RepositoryRootPath $RepositoryRoot)) {
 $stateChanges = Get-StateDirectoryChanges -RepositoryRootPath $RepositoryRoot
 if ($stateChanges.Count -gt 0) {
     $issues += $StateChangesMessage
+}
+
+if (Test-AllBacklogItemsComplete -RepositoryRootPath $RepositoryRoot) {
+    $notes += $MilestoneReminderMessage
 }
 
 $packageJsonExists = Test-PackageJsonExists -RepositoryRootPath $RepositoryRoot

@@ -2,6 +2,7 @@
 
 ## Self-Improvement Sprint 1
 
+- Completed the second Quality of Life task by updating `scripts/check-health.ps1` to print a reminder message when all backlog items are marked complete, prompting the operator to tag a milestone before adding new work.
 - Completed the first Quality of Life task by adding an optional `## Token Usage` section to `docs/agent-loop/templates/handover.md`, giving future handovers a standard place to record approximate per-run token consumption when available.
 - Completed the first Known Environment Gotchas task by adding a `## Known Environment Gotchas` section to `docs/agent-loop/outer-loop-playbook.md`, documenting the PowerShell 5.1 UTF-8 BOM issue and the operator-safe `Out-File -Encoding utf8NoBOM` and Node BOM-stripping mitigations for seed CSV generation.
 - Completed the second Skill System task by updating both `.agents/skills/agent-loop.md` and `docs/agent-loop/skill.md` so Phase 2 now scans `.agents/skills/` for supplementary skills beyond `agent-loop.md` and internalizes their markdown entrypoints before execution begins.
