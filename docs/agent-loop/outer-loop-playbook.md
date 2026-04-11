@@ -77,6 +77,18 @@ Use one of these safe patterns when generating seed files:
 
 Treat BOM-safe file output as mandatory whenever the workflow depends on exact column-header matching.
 
+### Monolithic Seeder Transactions Exhaust the Node Heap
+
+Large seed scripts can fail non-deterministically when they try to push every insert or upsert into a single `prisma.$transaction([...operations])` call. In practice, once the operation list grows beyond roughly 5,000 rows, Node can exhaust the heap while Prisma materializes the transaction payload, causing the seeder to crash before the database becomes the bottleneck.
+
+Use these patterns instead:
+
+- Batch large seed workloads into smaller transaction groups rather than constructing one giant `prisma.$transaction` array.
+- Commit each batch before moving to the next so memory use stays bounded and partial progress is easier to inspect.
+- Treat batch sizing as a first-class seeder parameter whenever fixture volume can grow over time.
+
+Do not rely on a single all-rows transaction for bulk seeders; bounded batches are the safe default.
+
 ---
 
 ## Periodic Standards Review
