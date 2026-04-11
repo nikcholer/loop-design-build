@@ -9,7 +9,7 @@
 
 - [x] **`outer-loop-playbook.md` also absent from trial scaffold:** `init-trial.ps1` now copies `docs/agent-loop/outer-loop-playbook.md` alongside `standards.md` into each new trial repo's `docs/agent-loop/` directory before the initial `git commit`.
 
-- [ ] **`planning.md` template too sparse:** Current template is a one-liner stub. Replace with a structured template containing headed sections (`## Domain Overview`, `## Data Sources / Requirements`, `## Technical Constraints`, `## Preferred Stack`, `## Out of Scope`) with placeholder guidance text so the agent's first-run context intake is anchored.
+- [x] **`planning.md` template too sparse:** `init-trial.ps1` now seeds `docs/planning.md` with a structured template containing `## Domain Overview`, `## Data Sources / Requirements`, `## Technical Constraints`, `## Preferred Stack`, and `## Out of Scope`, each with placeholder guidance text for first-run context intake.
 
 ## Outer Loop Tooling
 

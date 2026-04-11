@@ -21,6 +21,30 @@ $StandardsFileName = "standards.md"
 $SourceOuterLoopPlaybookPath = "docs\agent-loop\outer-loop-playbook.md"
 $OuterLoopPlaybookFileName = "outer-loop-playbook.md"
 $PlanningDocumentPath = "docs\planning.md"
+$PlanningTemplateContent = @'
+# Target Architecture / Product Requirements
+
+## Domain Overview
+
+Describe the product or system being built, who it serves, and the main workflow the agent must support.
+
+## Data Sources / Requirements
+
+Paste or summarize the raw schema, API contracts, sample payloads, business rules, and any must-have behaviours that define the scope.
+
+## Technical Constraints
+
+List required environments, deployment constraints, coding standards beyond the default harness, performance limits, and any forbidden approaches.
+
+## Preferred Stack
+
+Specify the preferred languages, frameworks, libraries, databases, and tooling. If something is optional, say so explicitly.
+
+## Out of Scope
+
+List features, integrations, migrations, or polish work that the agent should avoid during this run.
+'@
+$Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding($false)
 $CopyTemplatesMessage = "-> Copying templates to docs\templates..."
 $SeedStateMessage = "-> Seeding active state documents..."
 $RegisterSkillMessage = "-> Registering agent-loop.md skill..."
@@ -89,7 +113,7 @@ Copy-Item -Path $SourceOuterLoopPlaybook -Destination $DestOuterLoopPlaybook -Fo
 
 # Create a blank planning document for the user to paste their schema
 $PlanningDoc = Join-Path -Path $TargetRepo -ChildPath $PlanningDocumentPath
-"# Target Architecture / Product Requirements`n`n> Paste your raw schema or requirements data here to constrain the agent." | Out-File -FilePath $PlanningDoc
+[System.IO.File]::WriteAllText($PlanningDoc, $PlanningTemplateContent, $Utf8NoBomEncoding)
 
 # Initialize git and perform the first commit
 Write-Host "-> Initializing Git and committing scaffolding..."
