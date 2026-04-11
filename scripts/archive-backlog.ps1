@@ -90,7 +90,6 @@ function New-MarkdownDocument {
     param(
         [string]$Preamble,
 
-        [Parameter(Mandatory = $true)]
         [string[]]$Sections
     )
 
