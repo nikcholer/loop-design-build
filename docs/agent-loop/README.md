@@ -7,17 +7,16 @@ We achieve resilient AI workflows not by utilizing continuous, infinitely expand
 
 ## The Pillars of the Workflow
 
-### 1. Data-Driven Requirements
-Rather than starting with an abstract greenfield application, the architecture relies heavily on utilizing existing "medium-complexity" relational public datasets (such as the Ergast F1 Dataset, the Olist E-commerce Dataset, or Northwind/Sakila). 
+### 1. Constraint-Anchored Development
+The architecture relies on an unyielding "external anchor" to prevent agent drift. This can be a medium-complexity relational dataset (for application builds) or overarching architectural documentation and a meta-backlog (for infrastructure builds).
 
-- **Why?** The dataset acts as an unyielding product owner. The schema structure enforces strict architectural boundaries, requires explicit DTO (Data Transfer Object) translation, and provides natural edge cases without the agent hallucinating relationships. 
+- **Why?** The anchor acts as an objective Product Owner. Whether it's a schema enforcing DTO translation or a playbook enforcing state serialization, the constraints provide a "ground truth" that prevents the agent from hallucinating requirements or architectural shortcuts.
 
-### 2. Tiered Implementation & Strict TDD
-Development occurs in highly structured phases:
-1. **Contracts:** Establish the Data Access Layer (DAL) and strictly defined DTO interfaces based on the dataset.
-2. **Tests:** Write failing data-generator scripts and unit tests against those contracts.
-3. **Logic:** Implement business logic only to satisfy passing tests.
-- **Git Discipline:** The agent's adherence to TDD is enforced mathematically via small git commits, ensuring the system can be rolled back to a "green state" at any moment.
+### 2. Deterministic Implementation & Traceability
+Development is divided into strict, traceable phases derived directly from the anchor:
+1. **Backlog Synthesis:** The agent must fully populate the `backlog.md` from the provided constraints before writing a single line of logic.
+2. **Contract-First Design:** Establish the foundational interfaces or standards that govern the solution.
+3. **Atomic Verification:** Implement functional units only to satisfy explicitly defined requirements, verified by small, atomic git commits that allow for precise rollbacks.
 
 ### 3. Provider-Agnostic Headless Harness
 The agent's execution is not tied to a specific orchestration framework (like auto-gpt or langgraph) but is instead designed to be run repeatedly by a simple outer shell or harness. 
