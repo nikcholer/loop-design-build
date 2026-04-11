@@ -82,16 +82,27 @@ codex exec -m gpt-5.4 --dangerously-bypass-approvals-and-sandbox "Read .agents/s
 ### Gemini CLI
 
 ```powershell
-gemini -p "Read docs/agent-loop/skill.md and follow it precisely."
+gemini -m gemini-2.5-pro-preview --yolo -p "Read docs/agent-loop/skill.md and follow it precisely."
 ```
 
-> Gemini CLI reads the current directory context automatically. Point it at `skill.md` rather than the copied `.agents/skills/agent-loop.md` since the Gemini invocation does not require the separate skill registration step.
+> **Known limitation:** Gemini CLI's `--yolo` flag auto-approves file read/write tool calls but does **not** lift the shell execution restriction. The agent completes Phase 1–5 correctly (reads context, performs work, updates state files) but **cannot execute `git` commands**, so Phase 6 always fails silently. After every Gemini run, check `git status` and commit manually:
+> ```powershell
+> git add .
+> git commit -m "<semantic message from handover.md>"
+> ```
+> The correct commit message will be in `docs/state/handover.md` from the agent's Phase 5 serialization.
 
 ### Choosing Between Providers
 
-- Both providers follow the same `skill.md` protocol — output quality and token cost are the main differentiators.
-- Use Codex when you want sandbox isolation and explicit per-tool approval visibility in the run log.
-- Use Gemini CLI for faster iteration when you trust the current backlog scope and want lower latency per run.
+| | Codex (`gpt-5.4`) | Gemini CLI |
+|---|---|---|
+| Phase 6 commits | ✅ Works | ❌ Shell blocked — commit manually |
+| File read/write | ✅ | ✅ |
+| Sandbox isolation | ✅ via `--dangerously-bypass-approvals-and-sandbox` | Partial |
+| Best for | Full autonomous runs | Fast iteration with manual commit step |
+
+> **After any run:** always check `git status` before starting the next loop. An uncommitted state means the next agent wakes to modified but untracked work, which can cause confusing diffs.
+
 
 ---
 
