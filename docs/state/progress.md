@@ -2,6 +2,7 @@
 
 ## Self-Improvement Sprint 1
 
+- Completed the final Quality of Life task by updating `docs/agent-loop/README.md` and `docs/agent-loop/outer-loop-playbook.md` to document the self-improvement mode (running the harness on itself) without trial scaffolding.
 - Completed the second Quality of Life task by updating `scripts/check-health.ps1` to print a reminder message when all backlog items are marked complete, prompting the operator to tag a milestone before adding new work.
 - Completed the first Quality of Life task by adding an optional `## Token Usage` section to `docs/agent-loop/templates/handover.md`, giving future handovers a standard place to record approximate per-run token consumption when available.
 - Completed the first Known Environment Gotchas task by adding a `## Known Environment Gotchas` section to `docs/agent-loop/outer-loop-playbook.md`, documenting the PowerShell 5.1 UTF-8 BOM issue and the operator-safe `Out-File -Encoding utf8NoBOM` and Node BOM-stripping mitigations for seed CSV generation.

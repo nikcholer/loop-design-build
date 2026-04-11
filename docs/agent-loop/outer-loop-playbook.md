@@ -62,6 +62,16 @@ At any point between runs, the human orchestrator may:
 
 ---
 
+## Self-Improvement Mode
+
+To run the harness on itself to improve its own tooling, documentation, or playbooks:
+1. Do **not** generate a trial repository with `init-trial.ps1`.
+2. Drop a `docs/state/` folder directly into the root of `loop-design-build`.
+3. Write a `docs/planning.md` file describing the harness itself as the target codebase.
+4. Run the agent execution command directly from the root of the harness repository.
+
+---
+
 ## Starting an Agent Run
 
 Run the following from the **root of the trial or harness repo** (`cd` to the correct directory first).

@@ -44,6 +44,13 @@ To prevent contamination between the meta-architecture design and active applica
 - The scaffolded `docs/planning.md` now includes a `## Skills` section; after the operator lists optional local skills there, run `scripts/inject-skill.ps1 -TargetRepoPath <trial-repo>` from the harness repo to copy them into the trial's `.agents/skills/` directory.
 - The agent wakes up to this "clean slate", parses the raw constraints pasted into the target `planning.md` file by the human product owner, and fully synthesizes the custom backlog and system design before writing any code.
 
+### 6. Self-Improvement Mode
+The harness can be used to recursively improve its own tooling, documentation, and playbooks (as demonstrated in this repository's own development). To run the harness on itself:
+- Do not use trial scaffolding.
+- Drop a populated `docs/state/` architecture directly into the root of `loop-design-build`.
+- Write a `docs/planning.md` describing the harness architecture as the target codebase.
+- Run the agent execution command (e.g., `codex exec`) directly from the root.
+
 ## Directory Structure Overview
 - `skill.md` - The master system instruction governing the agent's step-by-step logic.
 - `templates/` - Standardized schemas for the markdown-driven state memory `(handover, tbd, etc)`.

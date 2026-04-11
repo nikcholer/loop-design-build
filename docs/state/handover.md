@@ -3,15 +3,15 @@
 ## Current Sprint Context
 - **Current Epic/Goal:** Quality of Life - improve operator prompts and self-hosting guidance.
 - **Last File Edited:** `docs/state/handover.md`
-- **Current Status:** Completed the second Quality of Life item by updating `scripts/check-health.ps1` to remind the operator to tag a milestone when all backlog items are complete.
+- **Current Status:** Completed the final Quality of Life task. Documented Self-Improvement Mode in `docs/agent-loop/README.md` and `docs/agent-loop/outer-loop-playbook.md`. The backlog is now 100% complete.
 - **Current Blockers:** None.
 
 ## Token Usage
 - Approximate token usage was not surfaced in this environment.
 
 ## Relevant Architectural Context
-- *The `scripts/check-health.ps1` logic now scans `docs/state/backlog.md` and triggers the reminder only if there are checkmarks (`[x]`) and no empty checkboxes (`[ ]`), remaining robust against varying spacing using the same regex pattern as `scripts/archive-backlog.ps1`.*
-- *`docs/state/backlog.md` remains comfortably below the archival threshold, so no backlog size warning is needed in this handover.*
+- *Self-Improvement Mode is now officially documented, instructing operators to run the harness on itself without trial scaffolding.*
+- *All current backlog items are now `[x]`. The health check script will remind the human orchestrator to tag a milestone and potentially archive the backlog.*
 
 ## Primary Immediate Next Step
-- Start the final Quality of Life task in `docs/state/backlog.md`: update `README.md` and `docs/agent-loop/outer-loop-playbook.md` to document the self-improvement mode (running the harness on itself).
+- **Await Human Orchestrator action.** All known backlog tasks are complete. The human orchestrator should tag a milestone, perform backlog archival if desired, and populate `docs/state/backlog.md` with new work before the next agent boot.
