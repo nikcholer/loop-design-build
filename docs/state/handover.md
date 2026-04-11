@@ -1,19 +1,15 @@
-# Handover Document
+# Agent Handover
 
-**Last Agent Exited At:** 2026-04-11
-
-## Primary Immediate Next Step
-- Start the first **Outer Loop Tooling** item by implementing `scripts/archive-backlog.ps1`.
-- Follow the procedure already described in `docs/agent-loop/outer-loop-playbook.md`: archive fully completed backlog sections into `docs/state/backlog-archive.md` with a datestamp and remove them from the active backlog.
-- Validate with a focused dry-run against a temporary copy of `docs/state/backlog.md`, then run a repository-level smoke check if needed.
-
-## Active Context
+## Current Sprint Context
 - **Current Epic/Goal:** Outer Loop Tooling — reducing manual maintenance around state documents.
-- **Last File Edited:** `init-trial.ps1`
-- **Current Status:** Completed the third Critical Fixes item by replacing the sparse `docs/planning.md` scaffold with a structured template and validating it via red/green trial scaffolds.
+- **Last File Edited:** `docs/state/handover.md`
+- **Current Status:** Completed the first Outer Loop Tooling item by adding and validating `scripts/archive-backlog.ps1`, which archives fully-completed backlog sections into `docs/state/backlog-archive.md` and commits the state-file pair with the playbook's datestamped semantic message.
 - **Current Blockers:** None.
 
 ## Relevant Architectural Context
-- *`init-trial.ps1` now writes `docs/planning.md` with a UTF-8 no-BOM structured template, which avoids the PowerShell BOM issue while giving first-run agents anchored requirements sections.*
-- *Validation pattern remains a throwaway sibling repo scaffold, inspection of generated files, then immediate deletion of the repo.*
-- *`docs/state/backlog.md` is currently a manageable size, so no backlog size warning is needed in this handover.*
+- *`scripts/archive-backlog.ps1` defaults `-RepositoryRoot` to the repo root, reads `docs/state/backlog.md`, archives only `##` sections whose checklist items are all `[x]`, preserves incomplete sections in the active backlog, writes UTF-8 without BOM, and creates `docs/state/backlog-archive.md` on demand.*
+- *Validation used throwaway git repos: one green path with mixed complete/incomplete sections plus commit verification, and one no-op path confirming no completed sections leaves the repo clean.*
+- *`docs/state/backlog.md` is still a manageable size, so no backlog size warning is needed in this handover.*
+
+## Primary Immediate Next Step
+- Start the next Outer Loop Tooling item: add `scripts/check-health.ps1` to verify TBD resolution state, detect uncommitted `docs/state/` changes, and optionally run `npm test -- --runInBand` when `package.json` exists.

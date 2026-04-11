@@ -13,7 +13,7 @@
 
 ## Outer Loop Tooling
 
-- [ ] **Automated backlog archival script:** Add `scripts/archive-backlog.ps1` implementing the procedure from `outer-loop-playbook.md`: scans `docs/state/backlog.md` for fully-completed sections (all items `[x]`), appends them to `backlog-archive.md` with a datestamp, removes them from the active file, and commits the pair.
+- [x] **Automated backlog archival script:** Added `scripts/archive-backlog.ps1` implementing the procedure from `outer-loop-playbook.md`: scans `docs/state/backlog.md` for fully-completed sections (all items `[x]`), appends them to `backlog-archive.md` with a datestamp, removes them from the active file, and commits the pair.
 
 - [ ] **Pre-run health check script:** Add `scripts/check-health.ps1` that verifies: (a) no `tbd.md` without a matching `tbd-response.md`, (b) no uncommitted changes in `docs/state/`, (c) optionally runs `npm test -- --runInBand` if a `package.json` is detected. Prints `✅ Ready` or `❌ Fix before running`.
 
