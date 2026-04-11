@@ -1,4 +1,4 @@
 # Project Backlog
 
-> This is the active backlog for the `loop-design-build` self-improvement run.
-> Source of requirements: `docs/meta-backlog.md` and `docs/planning.md`.
+## Verification
+- [x] Final verification: Add a tiny 'Verified' comment to handover.md.
