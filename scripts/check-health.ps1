@@ -7,7 +7,6 @@ $ErrorActionPreference = 'Stop'
 
 $TbdRelativePath = 'docs/state/tbd.md'
 $TbdResponseRelativePath = 'docs/state/tbd-response.md'
-$StateDirectoryRelativePath = 'docs/state'
 $PackageJsonRelativePath = 'package.json'
 $BacklogRelativePath = 'docs/state/backlog.md'
 $GitStatusPorcelainArgument = '--porcelain'
@@ -22,7 +21,7 @@ $FixSymbolCodePoint = 0x274C
 $ReadyMessage = ([char]$ReadySymbolCodePoint) + ' Ready'
 $FixBeforeRunningMessage = ([char]$FixSymbolCodePoint) + ' Fix before running'
 $TbdMissingResponseMessage = 'Unresolved blocker: docs/state/tbd.md exists without docs/state/tbd-response.md.'
-$StateChangesMessage = 'Uncommitted changes detected under docs/state/.'
+$RepositoryChangesMessage = 'Uncommitted changes detected in the repository.'
 $PackageJsonMissingMessage = 'package.json not found; skipped npm test.'
 $TestsPassedMessage = 'npm test -- --runInBand passed.'
 $TestsRequestedMessage = 'Running npm test -- --runInBand.'
@@ -84,13 +83,13 @@ function Test-TbdState {
     return $true
 }
 
-function Get-StateDirectoryChanges {
+function Get-RepositoryChanges {
     param(
         [Parameter(Mandatory = $true)]
         [string]$RepositoryRootPath
     )
 
-    $statusOutput = & git -C $RepositoryRootPath $GitStatusCommand $GitStatusPorcelainArgument -- $StateDirectoryRelativePath
+    $statusOutput = & git -C $RepositoryRootPath $GitStatusCommand $GitStatusPorcelainArgument
     return @($statusOutput | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
 }
 
@@ -120,9 +119,9 @@ if (-not (Test-TbdState -RepositoryRootPath $RepositoryRoot)) {
     $issues += $TbdMissingResponseMessage
 }
 
-$stateChanges = Get-StateDirectoryChanges -RepositoryRootPath $RepositoryRoot
-if ($stateChanges.Count -gt 0) {
-    $issues += $StateChangesMessage
+$repositoryChanges = Get-RepositoryChanges -RepositoryRootPath $RepositoryRoot
+if ($repositoryChanges.Count -gt 0) {
+    $issues += $RepositoryChangesMessage
 }
 
 if (Test-AllBacklogItemsComplete -RepositoryRootPath $RepositoryRoot) {

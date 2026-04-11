@@ -6,6 +6,25 @@ The **outer loop** is everything that happens *between* individual agent runs: t
 
 ---
 
+## First-Time Bootstrap
+
+If you are starting from a new project idea, use `init-trial.ps1` to create a scaffolded trial repo and work there.
+
+If you are taking over an existing repository, prefer adopting the harness **in place**. Do not copy the target codebase into a wrapper folder unless you know the project is location-independent and want an isolated clone. Many repos have path-sensitive scripts, workspace settings, or local integration assumptions.
+
+For an existing repo, bootstrap it like this before the first run:
+1. Copy `docs/agent-loop/skill.md` from this harness repo into `.agents/skills/agent-loop.md` in the target repo.
+2. Copy `docs/agent-loop/standards.md` and `docs/agent-loop/outer-loop-playbook.md` into `docs/agent-loop/` in the target repo.
+3. Copy the files from `docs/agent-loop/templates/` into the target repo.
+4. Create `docs/state/` and `docs/state/archive/`.
+5. Seed `docs/state/handover.md`, `docs/state/backlog.md`, and `docs/state/progress.md` from the matching templates.
+6. Create `docs/planning.md` from the planning template and fill it with the current architecture, supplied artefacts, constraints, current known priorities, and out-of-scope items.
+7. Review the seeded backlog and handover files so the first run starts from intentional context rather than generic placeholders.
+
+If `docs/` or `.agents/` already exists in the target repo, merge these files into the existing structure rather than renaming project folders or moving the codebase.
+
+---
+
 ## State Archival
 
 **Trigger:** The agent flags `## Backlog Size Warning` in `handover.md`, or the active `backlog.md` exceeds ~80 lines.
@@ -62,19 +81,9 @@ At any point between runs, the human orchestrator may:
 
 ---
 
-## Self-Improvement Mode
-
-To run the harness on itself to improve its own tooling, documentation, or playbooks:
-1. Do **not** generate a trial repository with `init-trial.ps1`.
-2. Drop a `docs/state/` folder directly into the root of `loop-design-build`.
-3. Write a `docs/planning.md` file describing the harness itself as the target codebase.
-4. Run the agent execution command directly from the root of the harness repository.
-
----
-
 ## Starting an Agent Run
 
-Run the following from the **root of the trial or harness repo** (`cd` to the correct directory first).
+Run the following from the **root of the target repo** (`cd` to the correct directory first). In the standard flow, this is the scaffolded trial repository created by `init-trial.ps1`.
 
 ### OpenAI Codex
 

@@ -36,12 +36,26 @@ The backbone of this stateless setup is the `docs/state/` folder. The flow uses 
   - Both TBD files are archived into a historical directory using `YYYYMMDDHHMMSS_` prefixes.
 
 ### 5. Project Onboarding Strategies
-The harness can be deployed in two ways depending on the maturity of the target codebase:
+The harness can be used in two ways depending on the maturity of the target codebase:
 
-- **Greenfield (Trial Repository):** Use the `init-trial.ps1` script to dynamically generate a clean sibling repository. This avoids contaminating the harness repo with application code and provides a blank slate for the agent to synthesize the custom backlog and system design from scratch.
-- **Existing Codebase (In-Situ Harnessing):** Drop the `docs/state/` architecture and the `docs/planning.md` document directly into the root of an existing repository. This allows the agent to begin work on established code immediately, using the overarching documentation as its primary constraint.
+- **Greenfield (Trial Repository):** Use the `init-trial.ps1` script to generate a clean sibling repository with the required `docs/`, `.agents/skills/`, and state templates already scaffolded.
+- **Existing Codebase (In-Situ Harnessing):** Copy the canonical scaffold assets from this repo into the target repository: `docs/agent-loop/templates/`, `docs/agent-loop/skill.md`, `docs/agent-loop/standards.md`, and any helper scripts you want the operator to use. The active `docs/state/` files should live in the target repository, not in this harness repo.
 
-In both cases, once the state architecture is present and the `planning.md` is populated, the project follows the same deterministic loop.
+In both cases, the active state lives with the target project being worked on. This repository remains the canonical source for the harness templates and instructions.
+
+### Existing Repo Bootstrap
+When adopting the harness into an existing repository, prefer working **in place** rather than copying the target codebase into a new wrapper folder. Many projects have path-sensitive scripts, workspace assumptions, or local tooling that become brittle when moved.
+
+Recommended bootstrap checklist:
+1. Copy `docs/agent-loop/skill.md` into `.agents/skills/agent-loop.md` in the target repo.
+2. Copy `docs/agent-loop/standards.md` and `docs/agent-loop/outer-loop-playbook.md` into `docs/agent-loop/`.
+3. Copy the template files from `docs/agent-loop/templates/` into the target repo.
+4. Create `docs/state/` and `docs/state/archive/`.
+5. Seed `docs/state/handover.md`, `docs/state/backlog.md`, and `docs/state/progress.md` from the matching templates.
+6. Create `docs/planning.md` from the planning template and populate it with the codebase constraints, current architecture, supplied artefacts, and out-of-scope items.
+7. Start the first run from the root of the target repo.
+
+If the target repo already has a `docs/` or `.agents/` directory, merge these files into the existing structure rather than relocating the codebase. Only use a copied-wrapper approach when the project is known to be location-independent and you explicitly want an isolated working clone.
 
 ## Directory Structure Overview
 - `skill.md` - The master system instruction governing the agent's step-by-step logic.
