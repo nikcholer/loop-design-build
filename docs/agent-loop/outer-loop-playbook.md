@@ -4,13 +4,13 @@ The **outer loop** is everything that happens *between* individual agent runs: t
 
 ---
 
-## Backlog Archival
+## State Archival
 
 **Trigger:** The agent flags `## Backlog Size Warning` in `handover.md`, or the active `backlog.md` exceeds ~80 lines.
 
 **Why the agent doesn't do this itself:** The agent is scoped to a single atomic task. Rewriting its own state files is a meta-operation that risks silently discarding context. The human orchestrator has full visibility of what is truly "done and safe to archive."
 
-**Procedure:**
+### Backlog Procedure
 
 1. Open `docs/state/backlog.md`.
 2. Identify all fully-completed sections — these are sections where every item (including all sub-items) is marked `[x]`. Partially-completed sections stay in the active backlog.
@@ -24,6 +24,28 @@ The **outer loop** is everything that happens *between* individual agent runs: t
    ```
    chore(state): archive completed backlog sections [YYYY-MM-DD]
    ```
+
+### Progress Procedure
+
+Archive `docs/state/progress.md` on the same trigger as backlog archival so the active progress log stays scoped to the current sprint.
+
+1. Open `docs/state/progress.md`.
+2. Identify completed sprint sections that are no longer part of the active workstream.
+3. Create or append to `docs/state/progress-archive.md`. Prepend each archived sprint section with a datestamp:
+   ```markdown
+   ## [Archived: YYYY-MM-DD] Self-Improvement Sprint 1
+   ...
+   ```
+4. Delete the archived sprint sections from `progress.md`, leaving only the current sprint's entries in the active file.
+5. If backlog archival is happening in the same pass, commit all state-file changes together:
+   ```
+   chore(state): archive completed backlog and progress sections [YYYY-MM-DD]
+   ```
+
+If only `progress.md` needs archival, commit the pair of progress-file changes together:
+```
+chore(state): archive completed progress sections [YYYY-MM-DD]
+```
 
 ---
 

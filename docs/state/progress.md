@@ -2,6 +2,7 @@
 
 ## Self-Improvement Sprint 1
 
+- Completed the third Outer Loop Tooling task by updating `docs/agent-loop/outer-loop-playbook.md` to archive `docs/state/progress.md` alongside `docs/state/backlog.md`, including `progress-archive.md` handling, shared trigger guidance, and commit-message conventions that keep the active progress log limited to the current sprint.
 - Completed the first Critical Fixes task in `init-trial.ps1`: new trial scaffolds now create `docs/agent-loop/` and copy `docs/agent-loop/standards.md` before the initial git commit.
 - Validated the change by running `init-trial.ps1 -TrialName Trial-LoopValidation`, confirming the scaffolded repo contains `docs/agent-loop/standards.md`, then deleting the throwaway repo.
 - Completed the second Critical Fixes task in `init-trial.ps1`: new trial scaffolds now also copy `docs/agent-loop/outer-loop-playbook.md` into `docs/agent-loop/` before the initial git commit.
@@ -12,3 +13,4 @@
 - Validated the archival script with a red/green throwaway repo workflow: first confirmed the script did not exist, then created a temporary git repo with a mixed complete/incomplete backlog, verified the completed section moved into `backlog-archive.md`, confirmed the active backlog retained only incomplete work, checked the generated commit message, and ran a no-op case where no completed sections existed and the repo stayed clean.
 - Completed the second Outer Loop Tooling task by adding `scripts/check-health.ps1`, which verifies TBD resolution state, checks for uncommitted changes under `docs/state/`, and optionally runs `npm test -- --runInBand` when `package.json` exists.
 - Validated the health-check script with throwaway git repos covering: a clean ready state, a blocked `tbd.md` state, a dirty `docs/state/` state, and an optional npm-test path using a compatible `package.json` test script; also ran the script successfully against the current repository.
+- Completed the third Outer Loop Tooling task by updating `docs/agent-loop/outer-loop-playbook.md` to document archiving `docs/state/progress.md` alongside `docs/state/backlog.md`, including `progress-archive.md` handling, shared trigger guidance, and commit-message conventions.

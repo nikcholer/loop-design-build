@@ -17,7 +17,7 @@
 
 - [x] **Pre-run health check script:** Added `scripts/check-health.ps1` to verify: (a) no `tbd.md` without a matching `tbd-response.md`, (b) no uncommitted changes in `docs/state/`, (c) optionally run `npm test -- --runInBand` when invoked with `-RunTestsIfPresent` and a `package.json` is present. Prints `✅ Ready` or `❌ Fix before running` and exits non-zero on failures.
 
-- [ ] **`progress.md` archival — same pattern as backlog:** Update `outer-loop-playbook.md` to document `progress-archive.md` archival on the same trigger as the backlog. The active `progress.md` should contain only the current sprint's entries.
+- [x] **`progress.md` archival — same pattern as backlog:** Updated `docs/agent-loop/outer-loop-playbook.md` to document `progress-archive.md` archival on the same trigger as the backlog. The active `progress.md` should contain only the current sprint's entries.
 
 - [ ] **Rollback procedure in `outer-loop-playbook.md`:** Document what to do when an agent run produces bad output: `git revert` vs `git reset --hard`, how to restore `handover.md` to the previous context, and whether to re-run the test baseline before the next loop.
 
