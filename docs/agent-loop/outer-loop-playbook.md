@@ -75,3 +75,80 @@ At the end of a natural milestone (e.g. all UI polish items done, design system 
 git tag -a v0.x.0 -m "Milestone: <short description>"
 ```
 This gives a clean rollback point and makes the git log readable as a project narrative.
+
+---
+
+## Rollback After a Bad Agent Run
+
+If an agent run produces incorrect code, corrupts state files, or moves the backlog in the wrong direction, recover the repo before starting the next loop. Pick the rollback method based on whether you need to preserve published history.
+
+### Use `git revert` When History Must Stay Intact
+
+Use `git revert` when the bad agent commit has already been pushed, shared with others, or is part of history you want to preserve as an auditable trail.
+
+1. Identify the bad commit:
+   ```
+   git log --oneline -n 10
+   ```
+2. Revert it with a new commit:
+   ```
+   git revert <bad-commit>
+   ```
+3. If the bad run spans multiple consecutive commits, revert the range from newest to oldest, or revert the contiguous range in one pass:
+   ```
+   git revert --no-commit <oldest-bad-commit>^..<newest-bad-commit>
+   git commit -m "revert: undo bad agent run"
+   ```
+
+**Why:** `git revert` preserves the full narrative of what happened while cleanly undoing the agent's output.
+
+### Use `git reset --hard` When Discarding Local History Is Safe
+
+Use `git reset --hard` only when the bad agent commit is still local, no one else depends on it, and you want to erase it completely rather than record a compensating commit.
+
+1. Confirm the last known good commit:
+   ```
+   git log --oneline -n 10
+   ```
+2. Reset the branch back to that commit:
+   ```
+   git reset --hard <good-commit>
+   ```
+
+For a simple "undo the latest agent run" case where the most recent commit is bad, this is usually:
+```
+git reset --hard HEAD~1
+```
+
+**Why:** this is the fastest recovery path, but it destroys local commit history, so it is only appropriate for unpublished work.
+
+### Restore `handover.md` Before Restarting the Loop
+
+The next run should inherit the last good context, not the bad run's summary.
+
+- If you used `git reset --hard` to move back to the last good commit, `docs/state/handover.md` is restored automatically with the rest of the tree.
+- If you used `git revert`, verify that `docs/state/handover.md` now reflects the restored context. If the revert leaves the handover semantically stale, rewrite it so the next run starts from the correct task.
+- If you need to recover only the handover from a known-good commit while keeping other current files, restore that single file first:
+  ```
+  git checkout <good-commit> -- docs/state/handover.md
+  ```
+  Then edit the file so `## Current Status` and `## Primary Immediate Next Step` accurately describe the recovered state before committing.
+
+### Re-Establish the Baseline Before the Next Run
+
+- If the bad run touched application code, tests, build scripts, dependencies, or generated artifacts, rerun the project's normal baseline checks before starting another agent loop.
+- In Node-based repos that follow the current harness pattern, prefer:
+  ```
+  npm test -- --runInBand
+  ```
+- If the bad run changed only documentation or state markdown, rerunning tests is optional, but still recommended when there is any doubt about collateral edits.
+- Do not resume the loop until the repo is both clean (`git status`) and the relevant baseline checks are green.
+
+### Recommended Recovery Sequence
+
+1. Stop the loop and inspect recent commits.
+2. Choose `git revert` for shared history or `git reset --hard` for safe local discard.
+3. Restore `docs/state/handover.md` to the last good context.
+4. Rerun the baseline checks appropriate to the files that changed.
+5. Confirm `git status` is clean.
+6. Restart the agent loop.

@@ -19,7 +19,7 @@
 
 - [x] **`progress.md` archival — same pattern as backlog:** Updated `docs/agent-loop/outer-loop-playbook.md` to document `progress-archive.md` archival on the same trigger as the backlog. The active `progress.md` should contain only the current sprint's entries.
 
-- [ ] **Rollback procedure in `outer-loop-playbook.md`:** Document what to do when an agent run produces bad output: `git revert` vs `git reset --hard`, how to restore `handover.md` to the previous context, and whether to re-run the test baseline before the next loop.
+- [x] **Rollback procedure in `outer-loop-playbook.md`:** Documented recovery steps for bad agent runs in `docs/agent-loop/outer-loop-playbook.md`, including when to use `git revert` versus `git reset --hard`, how to restore `docs/state/handover.md`, and when to rerun the test baseline before restarting the loop.
 
 ## Skill System
 

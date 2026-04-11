@@ -1,16 +1,16 @@
 # Agent Handover
 
 ## Current Sprint Context
-- **Current Epic/Goal:** Outer Loop Tooling — reducing manual maintenance around state documents.
+- **Current Epic/Goal:** Skill System - making skill activation repeatable inside trial repos.
 - **Last File Edited:** `docs/state/handover.md`
-- **Current Status:** Completed the third Outer Loop Tooling item by updating `docs/agent-loop/outer-loop-playbook.md` to document archiving `docs/state/progress.md` alongside backlog archival, including `progress-archive.md` usage, shared trigger guidance, and commit-message conventions that keep the active progress log limited to the current sprint.
+- **Current Status:** Completed the fourth Outer Loop Tooling item by updating `docs/agent-loop/outer-loop-playbook.md` with rollback guidance for bad agent runs, including `git revert` versus `git reset --hard`, `docs/state/handover.md` recovery, and baseline-test expectations before resuming the loop.
 - **Current Blockers:** None.
 
 ## Relevant Architectural Context
-- *`docs/agent-loop/outer-loop-playbook.md` now treats backlog and progress archival as a paired outer-loop maintenance activity triggered by the same backlog-size signal.*
-- *The playbook now specifies `docs/state/progress-archive.md` as the historical sink for completed sprint sections and states that active `docs/state/progress.md` should retain only the current sprint's entries.*
-- *The playbook documents separate semantic commit messages for combined backlog-plus-progress archival and for progress-only archival, keeping state-history changes explicit in git.*
-- *`docs/state/backlog.md` is still a manageable size, so no backlog size warning is needed in this handover.*
+- *`docs/agent-loop/outer-loop-playbook.md` now includes a dedicated rollback section that distinguishes between preserving shared history with `git revert` and discarding safe local history with `git reset --hard`.*
+- *The playbook now explicitly tells the outer-loop operator how `docs/state/handover.md` behaves under revert versus reset, and when to restore that file from a known-good commit before restarting.*
+- *Baseline recovery guidance now lives beside the rollback steps, so the operator can verify a clean `git status` and rerun the project's normal checks before invoking the next agent run.*
+- *`docs/state/backlog.md` remains comfortably below the archival threshold, so no backlog size warning is needed in this handover.*
 
 ## Primary Immediate Next Step
-- Start the next Outer Loop Tooling item: document the rollback procedure in `docs/agent-loop/outer-loop-playbook.md`, covering when to use `git revert` versus `git reset --hard`, how to restore `docs/state/handover.md`, and whether to rerun the test baseline before resuming the loop.
+- Start the first Skill System item: document a `## Skills` section in the `docs/planning.md` template and decide whether `init-trial.ps1` should copy named skills directly or delegate that work to a new `inject-skill.ps1` helper.
