@@ -18,11 +18,14 @@ $SourceSkillPath = "docs\agent-loop\skill.md"
 $SkillFileName = "agent-loop.md"
 $SourceStandardsPath = "docs\agent-loop\standards.md"
 $StandardsFileName = "standards.md"
+$SourceOuterLoopPlaybookPath = "docs\agent-loop\outer-loop-playbook.md"
+$OuterLoopPlaybookFileName = "outer-loop-playbook.md"
 $PlanningDocumentPath = "docs\planning.md"
 $CopyTemplatesMessage = "-> Copying templates to docs\templates..."
 $SeedStateMessage = "-> Seeding active state documents..."
 $RegisterSkillMessage = "-> Registering agent-loop.md skill..."
 $CopyStandardsMessage = "-> Copying agent loop coding standards..."
+$CopyOuterLoopPlaybookMessage = "-> Copying outer loop playbook..."
 
 $SourceRepo = $PWD.Path
 $ParentDir = Split-Path -Path $SourceRepo -Parent
@@ -77,6 +80,12 @@ $SourceStandards = Join-Path -Path $SourceRepo -ChildPath $SourceStandardsPath
 $DestStandards = Join-Path -Path $AgentLoopDocsDir -ChildPath $StandardsFileName
 Write-Host $CopyStandardsMessage
 Copy-Item -Path $SourceStandards -Destination $DestStandards -Force
+
+# Copy outer loop playbook required by the operator between agent runs
+$SourceOuterLoopPlaybook = Join-Path -Path $SourceRepo -ChildPath $SourceOuterLoopPlaybookPath
+$DestOuterLoopPlaybook = Join-Path -Path $AgentLoopDocsDir -ChildPath $OuterLoopPlaybookFileName
+Write-Host $CopyOuterLoopPlaybookMessage
+Copy-Item -Path $SourceOuterLoopPlaybook -Destination $DestOuterLoopPlaybook -Force
 
 # Create a blank planning document for the user to paste their schema
 $PlanningDoc = Join-Path -Path $TargetRepo -ChildPath $PlanningDocumentPath

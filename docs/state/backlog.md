@@ -7,7 +7,7 @@
 
 - [x] **`standards.md` not propagated to trial repos:** `init-trial.ps1` now creates `docs/agent-loop/` in new trial scaffolds and copies `docs/agent-loop/standards.md` into it before the initial `git commit`.
 
-- [ ] **`outer-loop-playbook.md` also absent from trial scaffold:** Same issue — copy it alongside `standards.md` into `docs/agent-loop/` in each new trial, or decide it is harness-only and remove the implicit expectation from `skill.md`.
+- [x] **`outer-loop-playbook.md` also absent from trial scaffold:** `init-trial.ps1` now copies `docs/agent-loop/outer-loop-playbook.md` alongside `standards.md` into each new trial repo's `docs/agent-loop/` directory before the initial `git commit`.
 
 - [ ] **`planning.md` template too sparse:** Current template is a one-liner stub. Replace with a structured template containing headed sections (`## Domain Overview`, `## Data Sources / Requirements`, `## Technical Constraints`, `## Preferred Stack`, `## Out of Scope`) with placeholder guidance text so the agent's first-run context intake is anchored.
 
