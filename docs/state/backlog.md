@@ -5,7 +5,7 @@
 
 ## Critical Fixes
 
-- [ ] **`standards.md` not propagated to trial repos:** `init-trial.ps1` does not copy `docs/agent-loop/standards.md` into the trial scaffold. `skill.md` instructs agents to read `docs/agent-loop/standards.md` on boot, but that path does not exist in a new trial. Fix: add a `Copy-Item` step to `init-trial.ps1` that copies `standards.md` into the trial's `docs/agent-loop/` directory (creating the folder) before the initial `git commit`.
+- [x] **`standards.md` not propagated to trial repos:** `init-trial.ps1` now creates `docs/agent-loop/` in new trial scaffolds and copies `docs/agent-loop/standards.md` into it before the initial `git commit`.
 
 - [ ] **`outer-loop-playbook.md` also absent from trial scaffold:** Same issue — copy it alongside `standards.md` into `docs/agent-loop/` in each new trial, or decide it is harness-only and remove the implicit expectation from `skill.md`.
 
