@@ -85,23 +85,28 @@ codex exec -m gpt-5.4 --dangerously-bypass-approvals-and-sandbox "Read .agents/s
 gemini -m gemini-2.5-pro-preview --yolo -p "Read docs/agent-loop/skill.md and follow it precisely."
 ```
 
-> **Known limitation:** Gemini CLI's `--yolo` flag auto-approves file read/write tool calls but does **not** lift the shell execution restriction. The agent completes Phase 1–5 correctly (reads context, performs work, updates state files) but **cannot execute `git` commands**, so Phase 6 always fails silently. After every Gemini run, check `git status` and commit manually:
-> ```powershell
-> git add .
-> git commit -m "<semantic message from handover.md>"
-> ```
-> The correct commit message will be in `docs/state/handover.md` from the agent's Phase 5 serialization.
+Per the [official documentation](https://github.com/google-gemini/gemini-cli), `--yolo` is designed to auto-approve **all** tool calls including shell commands, making Phase 6 commits fully autonomous. If git commands fail anyway, try the explicit flag form:
+
+```powershell
+gemini -m gemini-2.5-pro-preview --approval-mode yolo -p "Read docs/agent-loop/skill.md and follow it precisely."
+```
+
+> **If shell execution is still blocked** (error: `"Tool execution for 'Shell' requires user confirmation, which is not supported in non-interactive mode"`), this is a known intermittent bug in some Gemini CLI versions (observed in 0.37.0) rather than a fundamental limitation. Possible causes and workarounds:
+> - **CI environment variables:** Unset any `CI_*` environment variables before running — the CLI's UI framework detects these and may downgrade to a restricted non-interactive mode that overrides `--yolo`.
+> - **Version update:** `npm update -g @google/gemini-cli` — the bug may be fixed in a later release.
+> - **Manual fallback:** If the bug persists, check `docs/state/handover.md` for the agent's intended commit message and commit manually: `git add . && git commit -m "<message from handover>"`
 
 ### Choosing Between Providers
 
 | | Codex (`gpt-5.4`) | Gemini CLI |
 |---|---|---|
-| Phase 6 commits | ✅ Works | ❌ Shell blocked — commit manually |
+| Phase 6 commits | ✅ Works | ✅ Intended to work (bug in some versions — see above) |
 | File read/write | ✅ | ✅ |
 | Sandbox isolation | ✅ via `--dangerously-bypass-approvals-and-sandbox` | Partial |
-| Best for | Full autonomous runs | Fast iteration with manual commit step |
+| Best for | Full autonomous runs | Fast iteration; verify commit landed after each run |
 
-> **After any run:** always check `git status` before starting the next loop. An uncommitted state means the next agent wakes to modified but untracked work, which can cause confusing diffs.
+> **After any run (either provider):** always check `git status` before starting the next loop. An uncommitted state means the next agent wakes to modified but untracked work, which can cause confusing diffs.
+
 
 
 ---
