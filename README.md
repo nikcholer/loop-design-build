@@ -35,20 +35,13 @@ The backbone of this stateless setup is the `docs/state/` folder. The flow uses 
   - Upon waking and reading the response, the agent **must update the original requirements/planning documents** (to ensure the issue never recurs).
   - Both TBD files are archived into a historical directory using `YYYYMMDDHHMMSS_` prefixes.
 
-### 5. The "Clean Slate" Trialling Strategy
-To prevent contamination between the meta-architecture design and active application development, this framework relies on bounding executions in separate *trial repositories*.
+### 5. Project Onboarding Strategies
+The harness can be deployed in two ways depending on the maturity of the target codebase:
 
-- Use the `init-trial.ps1` script to dynamically generate a clean sibling repository.
-- The script automatically scaffolds the `docs/state/` architecture with **blank, domain-agnostic templates**. 
-- The scaffolded `docs/planning.md` now includes a `## Skills` section; after the operator lists optional local skills there, run `scripts/inject-skill.ps1 -TargetRepoPath <trial-repo>` from the harness repo to copy them into the trial's `.agents/skills/` directory.
-- The agent wakes up to this "clean slate", parses the raw constraints pasted into the target `planning.md` file by the human product owner, and fully synthesizes the custom backlog and system design before writing any code.
+- **Greenfield (Trial Repository):** Use the `init-trial.ps1` script to dynamically generate a clean sibling repository. This avoids contaminating the harness repo with application code and provides a blank slate for the agent to synthesize the custom backlog and system design from scratch.
+- **Existing Codebase (In-Situ Harnessing):** Drop the `docs/state/` architecture and the `docs/planning.md` document directly into the root of an existing repository. This allows the agent to begin work on established code immediately, using the overarching documentation as its primary constraint.
 
-### 6. Self-Improvement Mode
-The harness can be used to recursively improve its own tooling, documentation, and playbooks (as demonstrated in this repository's own development). To run the harness on itself:
-- Do not use trial scaffolding.
-- Drop a populated `docs/state/` architecture directly into the root of `loop-design-build`.
-- Write a `docs/planning.md` describing the harness architecture as the target codebase.
-- Run the agent execution command (e.g., `codex exec`) directly from the root.
+In both cases, once the state architecture is present and the `planning.md` is populated, the project follows the same deterministic loop.
 
 ## Directory Structure Overview
 - `skill.md` - The master system instruction governing the agent's step-by-step logic.
