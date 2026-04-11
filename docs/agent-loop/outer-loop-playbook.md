@@ -2,6 +2,8 @@
 
 The **outer loop** is everything that happens *between* individual agent runs: the human product owner, the orchestration chat, and any tooling that kicks off the next `codex exec`. This document records the recurring responsibilities of the outer loop operator.
 
+> **Note for agents:** This document describes duties performed by the *human orchestrator* between runs. It does not modify or supersede any phase in `skill.md`. In particular, **Phase 6 (git commit) remains mandatory** — agents must always commit at the end of a successful run regardless of anything written here.
+
 ---
 
 ## State Archival
