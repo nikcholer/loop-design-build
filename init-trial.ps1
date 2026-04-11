@@ -25,16 +25,25 @@ Write-Host "`n🚀 Scaffolding new Agentic Trial Repo: $TrialName"
 Write-Host "Location: $TargetRepo"
 
 # Build core directory structure
-$StateDir = Join-Path -Path $TargetRepo -ChildPath "docs\state"
+$DocsDir = Join-Path -Path $TargetRepo -ChildPath "docs"
+$StateDir = Join-Path -Path $DocsDir -ChildPath "state"
+$TemplatesDir = Join-Path -Path $DocsDir -ChildPath "templates"
 $SkillsDir = Join-Path -Path $TargetRepo -ChildPath ".agents\skills"
 
 New-Item -Path $StateDir -ItemType Directory -Force | Out-Null
+New-Item -Path $TemplatesDir -ItemType Directory -Force | Out-Null
 New-Item -Path $SkillsDir -ItemType Directory -Force | Out-Null
 
-# Copy templates to state directory
+# Copy templates to docs\templates directory
 $SourceTemplates = Join-Path -Path $SourceRepo -ChildPath "docs\agent-loop\templates\*"
-Write-Host "-> Copying state templates..."
-Copy-Item -Path $SourceTemplates -Destination $StateDir -Recurse -Force
+Write-Host "-> Copying templates to docs\templates..."
+Copy-Item -Path $SourceTemplates -Destination $TemplatesDir -Recurse -Force
+
+# Seed the initial ACTIVE state documents (excluding TBDs to prevent false blockers)
+Write-Host "-> Seeding active state documents..."
+Copy-Item -Path (Join-Path -Path $TemplatesDir -ChildPath "handover.md") -Destination $StateDir -Force
+Copy-Item -Path (Join-Path -Path $TemplatesDir -ChildPath "backlog.md") -Destination $StateDir -Force
+Copy-Item -Path (Join-Path -Path $TemplatesDir -ChildPath "progress.md") -Destination $StateDir -Force
 
 # Copy skill to antigravity skills folder
 $SourceSkill = Join-Path -Path $SourceRepo -ChildPath "docs\agent-loop\skill.md"
