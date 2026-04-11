@@ -3,13 +3,16 @@
 ## Current Sprint Context
 - **Current Epic/Goal:** Quality of Life - improve operator prompts and self-hosting guidance.
 - **Last File Edited:** `docs/state/handover.md`
-- **Current Status:** Completed the second Known Environment Gotchas item by adding a second `## Known Environment Gotchas` entry to `docs/agent-loop/outer-loop-playbook.md`, documenting that monolithic `prisma.$transaction([...N upserts])` seeders can exhaust the Node heap above roughly 5,000 rows and should always be batched.
+- **Current Status:** Completed the first Quality of Life item by adding an optional `## Token Usage` section to `docs/agent-loop/templates/handover.md`, so future handovers have a standard place to record approximate per-run token usage when available.
 - **Current Blockers:** None.
 
+## Token Usage
+- Approximate token usage was not surfaced in this environment.
+
 ## Relevant Architectural Context
-- *`docs/agent-loop/outer-loop-playbook.md` now records two standing gotchas: BOM-safe CSV generation for PowerShell 5.1 and bounded batching for large Prisma seeders, giving operators a canonical checklist for two high-cost failure modes observed in prior runs.*
-- *The seeder guidance focuses on memory pressure before database limits: the failure happens while Prisma and Node build the transaction payload, so batching is recommended even when the database could theoretically accept a larger write.*
-- *`docs/state/backlog.md` still remains comfortably below the archival threshold, so no backlog size warning is needed in this handover.*
+- *`init-trial.ps1` copies `docs/agent-loop/templates/handover.md` into each scaffolded repo's `docs/state/handover.md`, so updating the template propagates the new section to future trial repos without changing the scaffold flow.*
+- *The new `## Token Usage` section is intentionally optional and informational only; agents can leave it untouched when runtime token metrics are unavailable.*
+- *`docs/state/backlog.md` remains comfortably below the archival threshold, so no backlog size warning is needed in this handover.*
 
 ## Primary Immediate Next Step
-- Start the first remaining Quality of Life item: add an optional `## Token Usage` note to the `docs/state/handover.md` template so agents can record approximate token consumption per run and the outer loop can monitor context budget trends.
+- Start the remaining Quality of Life task in `docs/state/backlog.md`: update `scripts/check-health.ps1` so that when all backlog items are complete it reminds the operator to tag a milestone before adding new work.

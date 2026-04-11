@@ -12,5 +12,8 @@
 - **Last File Modified:** None
 - **Current Blockers:** None
 
+## Token Usage
+- Optional: record the approximate token usage for this run when that information is available.
+
 ## Relevant Architectural Context
 - *Ensure you adhere strictly to the boundaries established in `planning.md` when proposing DTOs and Data Access Layers.*

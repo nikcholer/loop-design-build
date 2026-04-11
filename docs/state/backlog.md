@@ -35,7 +35,7 @@
 
 ## Quality of Life
 
-- [ ] **Token usage logging:** Add an optional `## Token Usage` note to the `handover.md` template so agents can record approximate token consumption per run, giving the outer loop visibility of context budget trends.
+- [x] **Token usage logging:** Added an optional `## Token Usage` section to `docs/agent-loop/templates/handover.md` so agents have a standard place to record approximate per-run token usage when that information is available.
 
 - [ ] **Milestone tagging reminder in health check:** When `check-health.ps1` detects all backlog items are complete, prompt the operator to tag a milestone before adding new work.
 
