@@ -41,6 +41,7 @@ To prevent contamination between the meta-architecture design and active applica
 
 - Use the `init-trial.ps1` script to dynamically generate a clean sibling repository.
 - The script automatically scaffolds the `docs/state/` architecture with **blank, domain-agnostic templates**. 
+- The scaffolded `docs/planning.md` now includes a `## Skills` section; after the operator lists optional local skills there, run `scripts/inject-skill.ps1 -TargetRepoPath <trial-repo>` from the harness repo to copy them into the trial's `.agents/skills/` directory.
 - The agent wakes up to this "clean slate", parses the raw constraints pasted into the target `planning.md` file by the human product owner, and fully synthesizes the custom backlog and system design before writing any code.
 
 ## Directory Structure Overview

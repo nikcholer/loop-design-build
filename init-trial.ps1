@@ -2,7 +2,6 @@ param(
     [string]$TrialName = ""
 )
 
-# Ensure script halts on errors
 $ErrorActionPreference = "Stop"
 
 $DocsDirectoryName = "docs"
@@ -21,6 +20,12 @@ $StandardsFileName = "standards.md"
 $SourceOuterLoopPlaybookPath = "docs\agent-loop\outer-loop-playbook.md"
 $OuterLoopPlaybookFileName = "outer-loop-playbook.md"
 $PlanningDocumentPath = "docs\planning.md"
+$SkillInjectorRelativePath = "scripts\inject-skill.ps1"
+$SkillsSectionHeading = "## Skills"
+$SkillsSectionDescriptionLineOne = 'List optional harness skills to activate using one bullet per skill name from `~/.agents/skills/`.'
+$SkillsSectionDescriptionLineTwo = "Leave this section empty if no extra skills are needed."
+$SkillsSectionDescriptionLineThree = 'Example format: `- frontend-design`'
+$SkillsSectionDescriptionLineFour = 'After updating this section, run the harness skill injector against the trial repo so the listed skills are copied into `.agents/skills/`.'
 $PlanningTemplateContent = @'
 # Target Architecture / Product Requirements
 
@@ -40,6 +45,13 @@ List required environments, deployment constraints, coding standards beyond the 
 
 Specify the preferred languages, frameworks, libraries, databases, and tooling. If something is optional, say so explicitly.
 
+__SKILLS_SECTION_HEADING__
+
+__SKILLS_SECTION_DESCRIPTION_LINE_ONE__
+__SKILLS_SECTION_DESCRIPTION_LINE_TWO__
+__SKILLS_SECTION_DESCRIPTION_LINE_THREE__
+__SKILLS_SECTION_DESCRIPTION_LINE_FOUR__
+
 ## Out of Scope
 
 List features, integrations, migrations, or polish work that the agent should avoid during this run.
@@ -50,27 +62,36 @@ $SeedStateMessage = "-> Seeding active state documents..."
 $RegisterSkillMessage = "-> Registering agent-loop.md skill..."
 $CopyStandardsMessage = "-> Copying agent loop coding standards..."
 $CopyOuterLoopPlaybookMessage = "-> Copying outer loop playbook..."
+$InitializeGitMessage = "-> Initializing Git and committing scaffolding..."
+$ScaffoldingHeaderPrefix = "`n🚀 Scaffolding new Agentic Trial Repo:"
+$ScaffoldingLocationPrefix = "Location:"
+$TargetExistsMessagePrefix = "Target directory already exists:"
+$SuccessMessagePrefix = "✅ Trial successfully created at:"
+$StartMessagePrefix = "To start: cd ../"
+$StartMessageSuffix = " and update docs\planning.md!"
+$SkillInjectorHintPrefix = "Optional: after listing skills in docs\planning.md, run"
+$InitialCommitMessage = "chore: scaffold trial repo with agent loop skills and state templates"
 
 $SourceRepo = $PWD.Path
 $ParentDir = Split-Path -Path $SourceRepo -Parent
+$SkillInjectorPath = Join-Path -Path $SourceRepo -ChildPath $SkillInjectorRelativePath
 
-# Generate default name if none is provided
 if ([string]::IsNullOrWhiteSpace($TrialName)) {
-    $timestamp = Get-Date -Format "yyyyMMddHHmmss"
+    $TimestampFormat = "yyyyMMddHHmmss"
+    $timestamp = Get-Date -Format $TimestampFormat
     $TrialName = "Trial-$timestamp"
 }
 
 $TargetRepo = Join-Path -Path $ParentDir -ChildPath $TrialName
 
-if (Test-Path $TargetRepo) {
-    Write-Error "Target directory already exists: $TargetRepo"
+if (Test-Path -LiteralPath $TargetRepo) {
+    Write-Error "$TargetExistsMessagePrefix $TargetRepo"
     exit 1
 }
 
-Write-Host "`n🚀 Scaffolding new Agentic Trial Repo: $TrialName"
-Write-Host "Location: $TargetRepo"
+Write-Host "$ScaffoldingHeaderPrefix $TrialName"
+Write-Host "$ScaffoldingLocationPrefix $TargetRepo"
 
-# Build core directory structure
 $DocsDir = Join-Path -Path $TargetRepo -ChildPath $DocsDirectoryName
 $StateDir = Join-Path -Path $DocsDir -ChildPath $StateDirectoryName
 $TemplatesDir = Join-Path -Path $DocsDir -ChildPath $TemplatesDirectoryName
@@ -82,49 +103,48 @@ New-Item -Path $TemplatesDir -ItemType Directory -Force | Out-Null
 New-Item -Path $AgentLoopDocsDir -ItemType Directory -Force | Out-Null
 New-Item -Path $SkillsDir -ItemType Directory -Force | Out-Null
 
-# Copy templates to docs\templates directory
 $SourceTemplates = Join-Path -Path $SourceRepo -ChildPath $SourceTemplatesPath
 Write-Host $CopyTemplatesMessage
 Copy-Item -Path $SourceTemplates -Destination $TemplatesDir -Recurse -Force
 
-# Seed the initial ACTIVE state documents (excluding TBDs to prevent false blockers)
 Write-Host $SeedStateMessage
 Copy-Item -Path (Join-Path -Path $TemplatesDir -ChildPath $HandoverFileName) -Destination $StateDir -Force
 Copy-Item -Path (Join-Path -Path $TemplatesDir -ChildPath $BacklogFileName) -Destination $StateDir -Force
 Copy-Item -Path (Join-Path -Path $TemplatesDir -ChildPath $ProgressFileName) -Destination $StateDir -Force
 
-# Copy skill to antigravity skills folder
 $SourceSkill = Join-Path -Path $SourceRepo -ChildPath $SourceSkillPath
 $DestSkill = Join-Path -Path $SkillsDir -ChildPath $SkillFileName
 Write-Host $RegisterSkillMessage
 Copy-Item -Path $SourceSkill -Destination $DestSkill -Force
 
-# Copy coding standards required by the agent loop
 $SourceStandards = Join-Path -Path $SourceRepo -ChildPath $SourceStandardsPath
 $DestStandards = Join-Path -Path $AgentLoopDocsDir -ChildPath $StandardsFileName
 Write-Host $CopyStandardsMessage
 Copy-Item -Path $SourceStandards -Destination $DestStandards -Force
 
-# Copy outer loop playbook required by the operator between agent runs
 $SourceOuterLoopPlaybook = Join-Path -Path $SourceRepo -ChildPath $SourceOuterLoopPlaybookPath
 $DestOuterLoopPlaybook = Join-Path -Path $AgentLoopDocsDir -ChildPath $OuterLoopPlaybookFileName
 Write-Host $CopyOuterLoopPlaybookMessage
 Copy-Item -Path $SourceOuterLoopPlaybook -Destination $DestOuterLoopPlaybook -Force
 
-# Create a blank planning document for the user to paste their schema
 $PlanningDoc = Join-Path -Path $TargetRepo -ChildPath $PlanningDocumentPath
-[System.IO.File]::WriteAllText($PlanningDoc, $PlanningTemplateContent, $Utf8NoBomEncoding)
+$ResolvedPlanningTemplateContent = $PlanningTemplateContent.Replace("__SKILLS_SECTION_HEADING__", $SkillsSectionHeading)
+$ResolvedPlanningTemplateContent = $ResolvedPlanningTemplateContent.Replace("__SKILLS_SECTION_DESCRIPTION_LINE_ONE__", $SkillsSectionDescriptionLineOne)
+$ResolvedPlanningTemplateContent = $ResolvedPlanningTemplateContent.Replace("__SKILLS_SECTION_DESCRIPTION_LINE_TWO__", $SkillsSectionDescriptionLineTwo)
+$ResolvedPlanningTemplateContent = $ResolvedPlanningTemplateContent.Replace("__SKILLS_SECTION_DESCRIPTION_LINE_THREE__", $SkillsSectionDescriptionLineThree)
+$ResolvedPlanningTemplateContent = $ResolvedPlanningTemplateContent.Replace("__SKILLS_SECTION_DESCRIPTION_LINE_FOUR__", $SkillsSectionDescriptionLineFour)
+[System.IO.File]::WriteAllText($PlanningDoc, $ResolvedPlanningTemplateContent, $Utf8NoBomEncoding)
 
-# Initialize git and perform the first commit
-Write-Host "-> Initializing Git and committing scaffolding..."
+Write-Host $InitializeGitMessage
 Push-Location -Path $TargetRepo
 
 git init | Out-Null
 git add .
-git commit -m "chore: scaffold trial repo with agent loop skills and state templates" | Out-Null
+git commit -m $InitialCommitMessage | Out-Null
 
 Pop-Location
 
-Write-Host "✅ Trial successfully created at: $TargetRepo"
-Write-Host "To start: cd ../$TrialName and update docs\planning.md!"
+Write-Host "$SuccessMessagePrefix $TargetRepo"
+Write-Host "$StartMessagePrefix$TrialName$StartMessageSuffix"
+Write-Host ('{0} "{1}" -TargetRepoPath "{2}"' -f $SkillInjectorHintPrefix, $SkillInjectorPath, $TargetRepo)
 Write-Host ""

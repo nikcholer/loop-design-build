@@ -2,6 +2,10 @@
 
 ## Self-Improvement Sprint 1
 
+- Completed the first Skill System task by extending `init-trial.ps1` so new trial scaffolds seed `docs/planning.md` with a `## Skills` section that documents how operators list optional local skills to activate.
+- Implemented the helper-based copy flow by adding `scripts/inject-skill.ps1`, which reads skill names from the trial's `docs/planning.md` and copies matching skill folders or markdown files from `~/.agents/skills/` into the trial's `.agents/skills/` directory.
+- Documented the operator workflow in `docs/agent-loop/README.md`, including when to run `scripts/inject-skill.ps1 -TargetRepoPath <trial-repo>` after filling the planning document.
+- Validated the Skill System change with a red/green scaffold smoke test: first confirmed the previous scaffold omitted `## Skills` from `docs/planning.md`, then created `Trial-Green-SkillInjection`, verified the new section exists, injected `- frontend-design`, ran `scripts/inject-skill.ps1`, confirmed `.agents/skills/frontend-design/SKILL.md` was copied, and deleted the throwaway repo.
 - Completed the fourth Outer Loop Tooling task by extending `docs/agent-loop/outer-loop-playbook.md` with a rollback procedure for bad agent runs, including when to use `git revert` versus `git reset --hard`, how to restore `docs/state/handover.md`, and when to rerun the test baseline before resuming the loop.
 - Completed the third Outer Loop Tooling task by updating `docs/agent-loop/outer-loop-playbook.md` to archive `docs/state/progress.md` alongside `docs/state/backlog.md`, including `progress-archive.md` handling, shared trigger guidance, and commit-message conventions that keep the active progress log limited to the current sprint.
 - Completed the first Critical Fixes task in `init-trial.ps1`: new trial scaffolds now create `docs/agent-loop/` and copy `docs/agent-loop/standards.md` before the initial git commit.
