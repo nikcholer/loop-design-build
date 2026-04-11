@@ -29,7 +29,7 @@
 
 ## Known Environment Gotchas
 
-- [ ] **Document PowerShell BOM gotcha:** Add a `## Known Environment Gotchas` section to `outer-loop-playbook.md`. First entry: PowerShell 5.1's `Set-Content` and `Out-File` emit a UTF-8 BOM by default, silently corrupting the first CSV column header. Safe alternatives: `Out-File -Encoding utf8NoBOM` or strip with Node before seeding.
+- [x] **Document PowerShell BOM gotcha:** Added a `## Known Environment Gotchas` section to `docs/agent-loop/outer-loop-playbook.md`. First entry documents how PowerShell 5.1's `Set-Content` and `Out-File` emit a UTF-8 BOM by default, silently corrupting the first CSV column header, and records the safe `Out-File -Encoding utf8NoBOM` and Node BOM-stripping alternatives.
 
 - [ ] **Document monolithic seeder transaction limit:** Add to `outer-loop-playbook.md` gotchas: passing all N rows into a single `prisma.$transaction([...N upserts])` causes Node heap exhaustion above ~5,000 rows. Always batch large seeder operations.
 

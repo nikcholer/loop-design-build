@@ -62,6 +62,23 @@ At any point between runs, the human orchestrator may:
 
 ---
 
+## Known Environment Gotchas
+
+Capture environment-specific failures here once they have repeated often enough to deserve standing operator guidance.
+
+### PowerShell 5.1 UTF-8 BOM Corrupts Seed CSV Headers
+
+PowerShell 5.1 writes a UTF-8 byte order mark when using `Set-Content` and many `Out-File` flows, which can silently corrupt the first CSV column header during fixture or seed generation. The downstream symptom is usually a parser that appears to read the file successfully but exposes an unexpected first header value with hidden BOM bytes attached.
+
+Use one of these safe patterns when generating seed files:
+
+- Prefer `Out-File -Encoding utf8NoBOM` when writing UTF-8 CSV content from PowerShell.
+- If a file was already produced with a BOM, strip it with Node before seeding so the first header matches the expected schema exactly.
+
+Treat BOM-safe file output as mandatory whenever the workflow depends on exact column-header matching.
+
+---
+
 ## Periodic Standards Review
 
 After 3–5 trial projects, review `docs/agent-loop/standards.md` against the accumulated `backlog-archive.md` files across trials. If a new class of debt is appearing repeatedly, codify it as a new standing rule.
