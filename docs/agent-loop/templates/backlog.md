@@ -7,5 +7,5 @@
 ## Medium Priority Queue
 - [ ] *(Agent will populate based on schema analysis)*
 
-## Icebox
+## Icebox (Human-Controlled: Agent Read-Only)
 - [ ] *(Agent will populate based on schema analysis)*

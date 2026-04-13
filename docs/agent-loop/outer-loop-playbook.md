@@ -96,18 +96,34 @@ codex exec -m gpt-5.4 --dangerously-bypass-approvals-and-sandbox "Read .agents/s
 | `-m gpt-5.4` | Model selection — substitute the current best available model |
 | `--dangerously-bypass-approvals-and-sandbox` | Allows the agent to run shell commands and write files without per-action approval. Required for autonomous execution. |
 
+Recommended headless prompt:
+
+```text
+Read .agents/skills/agent-loop.md and follow it precisely.
+```
+
+This points the model at the deployed runtime skill inside the target repo. The skill then drives the rest of the context intake from `docs/state/`, `docs/planning.md`, `docs/agent-loop/standards.md`, and any supplementary skills.
+
 > **After the run:** always check `git status`. If the agent reports skipping the commit (citing "higher-priority repo instructions"), commit manually: `git add . && git commit -m "<semantic message>"`.
 
 ### Gemini CLI
 
 ```powershell
-gemini -m gemini-2.5-pro-preview --yolo -p "Read docs/agent-loop/skill.md and follow it precisely."
+gemini -m gemini-2.5-pro-preview --prompt "Read .agents/skills/agent-loop.md and follow it precisely." --approval-mode yolo
 ```
 
-Per the [official documentation](https://github.com/google-gemini/gemini-cli), `--yolo` is designed to auto-approve **all** tool calls including shell commands, making Phase 6 commits fully autonomous. If git commands fail anyway, try the explicit flag form:
+Equivalent short-form command:
 
 ```powershell
-gemini -m gemini-2.5-pro-preview --approval-mode yolo -p "Read docs/agent-loop/skill.md and follow it precisely."
+gemini -m gemini-2.5-pro-preview -p "Read .agents/skills/agent-loop.md and follow it precisely." -y
+```
+
+Per the CLI help, `--prompt` selects non-interactive headless mode and `--approval-mode yolo` auto-approves all tool calls including shell commands, making Phase 6 commits fully autonomous.
+
+Recommended headless prompt:
+
+```text
+Read .agents/skills/agent-loop.md and follow it precisely.
 ```
 
 > **If shell execution is still blocked** (error: `"Tool execution for 'Shell' requires user confirmation, which is not supported in non-interactive mode"`), this is a known intermittent bug in some Gemini CLI versions (observed in 0.37.0) rather than a fundamental limitation. Possible causes and workarounds:

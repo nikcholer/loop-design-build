@@ -3,8 +3,14 @@
 ## Overview
 This instruction set dictates your behavior when invoked as a headless agent within an iterative loop. Your purpose is to wake up, understand your state entirely from local markdown documents, execute a single discrete unit of work, serialize your state, and exit cleanly.
 
-## Phase 1: Pre-Flight Health Check (State Assessment)
-Before writing any code or altering the backlog, you MUST verify the state of unresolved ambiguities in `docs/state/`.
+## Phase 1: Pre-Flight Health Check (Locality & State assessment)
+Before writing any code or altering the backlog, you MUST verify your physical and logical locality.
+
+0. **Step 0: Locality & Sanity Check**:
+   - Verify that you are in the intended project root by checking for the existence of `docs/planning.md` and `docs/state/backlog.md`.
+   - **Consistency Check:** Perform a brief "sanity scan" of the repository. If the `backlog.md` indicates a task is "Complete" but the corresponding files (e.g., tests or implementation) are missing from the codebase, do NOT proceed.
+   - **Abort Path:** If documentation anchors are missing, or if there is a systemic mismatch between the documented state and the physical codebase, you must **ABORT** immediately. Create a `docs/state/tbd.md` in the current directory (even if it's the wrong one) explaining the locality or consistency failure so the operator can intervene.
+
 1. Check for the existence of `docs/state/tbd.md`.
 2. **If `tbd.md` exists AND `docs/state/tbd-response.md` does not exist**: The human has not resolved your blocker. **ABORT EXECUTION IMMEDIATELY**. Do not make any changes.
 3. **If `tbd.md` exists AND `tbd-response.md` exists**: 
@@ -16,22 +22,20 @@ Before writing any code or altering the backlog, you MUST verify the state of un
 ## Phase 2: Context Intake
 1. Read `docs/agent-loop/standards.md` and internalize all coding standards. These apply to every line of code you write or modify in this session.
 2. Check `.agents/skills/` for any supplementary skill files beyond `agent-loop.md`. For each additional file or directory found, read its markdown entrypoint (`SKILL.md` for a directory-based skill, or the file itself for a standalone markdown skill) and internalize that guidance before beginning execution.
-3. Read `docs/state/handover.md` to understand exactly where the previous run left off.
-4. Read `docs/state/backlog.md` to identify your immediate next priority task. 
-   - **Initialization Case:** If the `backlog.md` is in its initial unpopulated state, your absolute first priority is to analyze the data schema provided in `docs/planning.md` and use it to autonomously draft and populate the domain-specific epics into `backlog.md` before doing any code implementation.
-   - If `handover.md` specifies a mid-flight task, continue it.
-   - Otherwise, pop the next item from `backlog.md`.
+    - Otherwise, pop the next item from the **Active Backlog** (defined as the **High Priority Queue** or **Medium Priority Queue**).
+    - **Icebox Boundary:** The **Icebox** is a human-controlled queue. You are strictly forbidden from unilaterally popping items from the Icebox or re-prioritizing items from the Icebox into the active queues.
+    - **Backlog Exhaustion:** If both active queues (High and Medium Priority) are empty, you must NOT proceed to the Icebox. Instead, move immediately to **Phase 4: Dealing with Ambiguity** to escalate the state to the Product Owner.
 
 ## Phase 3: Execution & The TDD Loop
 1. Execute the work required for the current task.
 2. If the task involves code, rely on Test Driven Development. The expected workflow is `Red -> Green -> Refactor`.
 3. Stop once a logical boundary is reached (e.g., hitting a blocker, finishing a failing test, or successfully completing a passing implementation).
 
-## Phase 4: Dealing with Ambiguity
-If at any point you encounter conflicting constraints, undefined requirements, or systemic ambiguity that needs Human Product Owner input:
+If at any point you encounter conflicting constraints, undefined requirements, or if the **Active Backlog** is exhausted:
 1. Stop all current work.
-2. Create `docs/state/tbd.md` detailing the problem, context, and potential options for the human to select.
-3. Skip Phase 5 and jump immediately to Phase 6 (Commit and Teardown).
+2. Create `docs/state/tbd.md` detailing the problem or the fact that no active tasks remain.
+3. **Icebox Proposal:** If the backlog is exhausted, browse the **Icebox** and propose 1-2 logical next steps in the `tbd.md`, providing context-aware reasoning for why these items should be considered for promotion.
+4. Skip Phase 5 and jump immediately to Phase 6 (Commit and Teardown).
 
 ## Phase 5: Normal Serialization
 If you reached a logical completion point without an unresolved TBD:
