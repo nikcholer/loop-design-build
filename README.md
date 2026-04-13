@@ -23,7 +23,7 @@ graph TD
     HO -->|7. Review| H
 ```
 
-The aim is not to build a fully autonomous multi-agent framework. The aim is to make repeated, context-clear agent runs auditable, reviewable, and portable across providers such as Codex CLI, Gemini CLI, or similar tools.
+The aim is not to build a fully autonomous multi-agent framework. The aim is to make repeated, context-clear agent runs auditable, reviewable, and portable across providers. *(Tested heavily with [Aider](https://aider.chat/) and Gemini CLI, but works with any agent capable of reading/writing local files).*
 
 ## What This Repo Contains
 
@@ -37,8 +37,8 @@ The aim is not to build a fully autonomous multi-agent framework. The aim is to 
   An example populated standards file from a TypeScript/Prisma-style project.
 - `docs/agent-loop/templates/`
   Blank markdown templates for planning, backlog, progress, handover, and TBD files.
-- `init-trial.ps1`
-  Creates a sibling trial repo with the harness files and empty active state scaffolded.
+- `init-trial.ps1` & `init-trial.sh`
+  Creates a sibling trial repo with the harness files and empty active state scaffolded (PowerShell and Bash).
 - `scripts/`
   Optional operator helpers for skill injection, backlog archival, and lightweight health checks. (e.g., `inject-skill.ps1` dynamically reads `docs/planning.md` to copy requested skills into your workspace).
 
@@ -65,10 +65,21 @@ If the agent hits ambiguity or conflicting requirements, it writes `tbd.md` and 
 ### 4. Provider-Agnostic
 The harness is orchestration-light. Different CLI agents can pick up the same backlog and continue from the same local ground truth.
 
+### 5. The Handover Snippet (Example)
+Instead of the LLM abandoning context in its chat window, it writes it to disk before exiting:
+```markdown
+## Work Completed
+- Added `GET /api/trends` endpoint for monthly borough aggregations.
+- Covered with 3 unit tests.
+
+## Next Steps
+The frontend needs to be updated to consume this new endpoint and handle loading states.
+```
+
 ## How To Use It
 
 ### Option A: Create a New Trial Repo
-Run `.\init-trial.ps1` to scaffold a sibling repository with the runtime skill, operator docs, and empty planning/state files ready to populate.
+Run `.\init-trial.ps1` (or `./init-trial.sh` on macOS/Linux) to scaffold a sibling repository with the runtime skill, operator docs, and empty planning/state files ready to populate.
 
 ### Option B: Adopt It In An Existing Repo
 Copy the harness files into the target repository:
