@@ -1,11 +1,11 @@
 # Project Backlog
 
 ## High Priority Queue
-- [ ] **Initialization:** Read `docs/planning.md` to analyze the provided domain schema and constraints. 
-- [ ] **Planning:** Based on the constraints in `planning.md`, replace these placeholder tasks with a generated, prioritized list of domain-specific tasks (e.g. "Create DTOs for X", "Write tests for Y").
+- [ ] **Initialization:** Read `docs/planning.md` to analyze the supplied project context, constraints, and artefacts.
+- [ ] **Planning:** Replace these placeholder tasks with a generated, prioritized list of project-specific tasks.
 
 ## Medium Priority Queue
-- [ ] *(Agent will populate based on schema analysis)*
+- [ ] *(Agent will populate after initial planning and backlog synthesis.)*
 
 ## Icebox (Human-Controlled: Agent Read-Only)
-- [ ] *(Agent will populate based on schema analysis)*
+- [ ] *(Human-curated future work or deferred ideas live here.)*

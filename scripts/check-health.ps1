@@ -1,31 +1,25 @@
 param(
     [string]$RepositoryRoot = $(Split-Path -Path $PSScriptRoot -Parent),
-    [switch]$RunTestsIfPresent
+    [string[]]$VerificationCommand = @()
 )
 
 $ErrorActionPreference = 'Stop'
 
 $TbdRelativePath = 'docs/state/tbd.md'
 $TbdResponseRelativePath = 'docs/state/tbd-response.md'
-$PackageJsonRelativePath = 'package.json'
 $BacklogRelativePath = 'docs/state/backlog.md'
 $GitStatusPorcelainArgument = '--porcelain'
 $GitStatusCommand = 'status'
 $GitRevParseCommand = 'rev-parse'
 $GitRepositoryCheckArgument = '--is-inside-work-tree'
-$NpmCommand = 'npm'
-$NpmTestArgument = 'test'
-$NpmRunInBandArgument = '--runInBand'
 $ReadySymbolCodePoint = 0x2705
 $FixSymbolCodePoint = 0x274C
 $ReadyMessage = ([char]$ReadySymbolCodePoint) + ' Ready'
 $FixBeforeRunningMessage = ([char]$FixSymbolCodePoint) + ' Fix before running'
 $TbdMissingResponseMessage = 'Unresolved blocker: docs/state/tbd.md exists without docs/state/tbd-response.md.'
 $RepositoryChangesMessage = 'Uncommitted changes detected in the repository.'
-$PackageJsonMissingMessage = 'package.json not found; skipped npm test.'
-$TestsPassedMessage = 'npm test -- --runInBand passed.'
-$TestsRequestedMessage = 'Running npm test -- --runInBand.'
-$TestsSkippedMessage = 'Skipped npm test; use -RunTestsIfPresent to enable it when package.json exists.'
+$VerificationPassedMessage = 'Baseline verification command passed.'
+$VerificationSkippedMessage = 'Skipped baseline verification; pass -VerificationCommand <command ...> to run project-specific checks.'
 $MilestoneReminderMessage = 'All backlog items are complete. Consider tagging a milestone before adding new work.'
 $ChecklistPattern = '(?m)^\s*[-*]\s+\[(?<state>[xX ])\]'
 
@@ -93,20 +87,33 @@ function Get-RepositoryChanges {
     return @($statusOutput | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
 }
 
-function Test-PackageJsonExists {
+function Invoke-VerificationCommand {
     param(
+        [Parameter(Mandatory = $true)]
+        [string[]]$CommandParts,
+
         [Parameter(Mandatory = $true)]
         [string]$RepositoryRootPath
     )
 
-    $packageJsonPath = Join-Path -Path $RepositoryRootPath -ChildPath $PackageJsonRelativePath
-    return Test-Path -Path $packageJsonPath
-}
+    $commandName = $CommandParts[0]
+    $commandArguments = @()
 
-function Invoke-NpmTests {
-    & $NpmCommand $NpmTestArgument -- $NpmRunInBandArgument
-    if ($LASTEXITCODE -ne 0) {
-        throw 'npm test failed.'
+    if ($CommandParts.Count -gt 1) {
+        $commandArguments = $CommandParts[1..($CommandParts.Count - 1)]
+    }
+
+    Write-Host ('Running baseline verification command: ' + ($CommandParts -join ' '))
+
+    Push-Location -Path $RepositoryRootPath
+    try {
+        & $commandName @commandArguments
+        if ($LASTEXITCODE -ne 0) {
+            throw 'Baseline verification command failed.'
+        }
+    }
+    finally {
+        Pop-Location
     }
 }
 
@@ -128,28 +135,17 @@ if (Test-AllBacklogItemsComplete -RepositoryRootPath $RepositoryRoot) {
     $notes += $MilestoneReminderMessage
 }
 
-$packageJsonExists = Test-PackageJsonExists -RepositoryRootPath $RepositoryRoot
-if ($RunTestsIfPresent) {
-    if ($packageJsonExists) {
-        Write-Host $TestsRequestedMessage
-        try {
-            Push-Location -Path $RepositoryRoot
-            Invoke-NpmTests
-            $notes += $TestsPassedMessage
-        }
-        catch {
-            $issues += $_.Exception.Message
-        }
-        finally {
-            Pop-Location
-        }
+if ($VerificationCommand.Count -gt 0) {
+    try {
+        Invoke-VerificationCommand -CommandParts $VerificationCommand -RepositoryRootPath $RepositoryRoot
+        $notes += $VerificationPassedMessage
     }
-    else {
-        $notes += $PackageJsonMissingMessage
+    catch {
+        $issues += $_.Exception.Message
     }
 }
 else {
-    $notes += $TestsSkippedMessage
+    $notes += $VerificationSkippedMessage
 }
 
 foreach ($note in $notes) {

@@ -1,63 +1,101 @@
-# Agentic Loop Workflow Architecture
+# Agentic Loop Harness
 
-## Project Philosophy
-This project is designed to showcase rigorous, structured agentic coding. By stripping away typical UI/UX focus and abstracting orchestration tooling, the goal is to observe and enforce a deterministic, iterative software development lifecycle driven by LLM agents.
+This repository is a publishable harness for running a single bounded CLI-agent task at a time under human oversight.
 
-We achieve resilient AI workflows not by utilizing continuous, infinitely expanding context windows, but by forcing the agent to serialize its state locally, commit atomically, and explicitly generate its own "shift change" documentation.
+It is designed to be copied into a target repository so an agent can:
+- read its working context from local markdown files,
+- complete one discrete backlog item using a TDD-first workflow when code is involved,
+- write a handover for the next run,
+- stop rather than guess when requirements are ambiguous.
 
-## The Pillars of the Workflow
+The aim is not to build a fully autonomous multi-agent framework. The aim is to make repeated, context-clear agent runs auditable, reviewable, and portable across providers such as Codex CLI, Gemini CLI, or similar tools.
 
-### 1. Constraint-Anchored Development
-The architecture relies on an unyielding "external anchor" to prevent agent drift. This can be a medium-complexity relational dataset (for application builds) or overarching architectural documentation and a meta-backlog (for infrastructure builds).
+## What This Repo Contains
 
-- **Why?** The anchor acts as an objective Product Owner. Whether it's a schema enforcing DTO translation or a playbook enforcing state serialization, the constraints provide a "ground truth" that prevents the agent from hallucinating requirements or architectural shortcuts.
+- `docs/agent-loop/skill.md`
+  The runtime instruction the agent reads inside the target repo.
+- `docs/agent-loop/outer-loop-playbook.md`
+  The human operator guide for starting runs, handling blockers, archiving state, and steering the next sprint.
+- `docs/agent-loop/standards.md`
+  A neutral placeholder file to populate with project-specific standards before or during a trial.
+- `docs/agent-loop/standards.sample.md`
+  An example populated standards file from a TypeScript/Prisma-style project. It is reference material, not the default scaffold.
+- `docs/agent-loop/templates/`
+  Blank markdown templates for planning, backlog, progress, handover, and TBD files.
+- `init-trial.ps1`
+  Creates a sibling trial repo with the harness files and empty active state scaffolded.
+- `scripts/`
+  Optional operator helpers for skill injection, backlog archival, and lightweight health checks.
 
-### 2. Deterministic Implementation & Traceability
-Development is divided into strict, traceable phases derived directly from the anchor:
-1. **Backlog Synthesis:** The agent must fully populate the `backlog.md` from the provided constraints before writing a single line of logic.
-2. **Contract-First Design:** Establish the foundational interfaces or standards that govern the solution.
-3. **Atomic Verification:** Implement functional units only to satisfy explicitly defined requirements, verified by small, atomic git commits that allow for precise rollbacks.
+## Core Model
 
-### 3. Provider-Agnostic Headless Harness
-The agent's execution is not tied to a specific orchestration framework (like auto-gpt or langgraph) but is instead designed to be run repeatedly by a simple outer shell or harness. 
-- On every boot, the agent reads its entire state from local `.md` documents. 
-- It executes exactly one prioritized atomic task.
-- It serializes its exit state to the file system.
-- It safely shuts down.
+### 1. Local Markdown State
 
-### 4. Deterministic State & Ambiguity Resolution (The TBD Pattern)
-The backbone of this stateless setup is the `docs/state/` folder. The flow uses rigid templates:
-- `handover.md`: A high-density "you are here" map generated for the *next* agent instance.
-- `backlog.md` & `progress.md`: For epic management.
-- **Escalation (`tbd.md` & `tbd-response.md`)**: Whenever the agent encounters systemic ambiguity, conflicting constraints, or unmapped requirements, it **aborts execution immediately** and drafts a `tbd.md` file requesting human guidance.
-  - The outer harness detects this file and suspends automated loops.
-  - A human operator responds via `tbd-response.md`.
-  - Upon waking and reading the response, the agent **must update the original requirements/planning documents** (to ensure the issue never recurs).
-  - Both TBD files are archived into a historical directory using `YYYYMMDDHHMMSS_` prefixes.
+The target repo carries its own working state in markdown:
+- `docs/planning.md`
+- `docs/state/backlog.md`
+- `docs/state/progress.md`
+- `docs/state/handover.md`
+- `docs/state/tbd.md` and `tbd-response.md` when escalation is required
 
-### 5. Project Onboarding Strategies
-The harness can be used in two ways depending on the maturity of the target codebase:
+That keeps each agent run short-lived and restartable. The next run reads the repo, not an opaque chat transcript.
 
-- **Greenfield (Trial Repository):** Use the `init-trial.ps1` script to generate a clean sibling repository with the required `docs/`, `.agents/skills/`, and state templates already scaffolded.
-- **Existing Codebase (In-Situ Harnessing):** Copy the canonical scaffold assets from this repo into the target repository: `docs/agent-loop/templates/`, `docs/agent-loop/skill.md`, `docs/agent-loop/standards.md`, and any helper scripts you want the operator to use. The active `docs/state/` files should live in the target repository, not in this harness repo.
+### 2. One Task Per Run
 
-In both cases, the active state lives with the target project being worked on. This repository remains the canonical source for the harness templates and instructions.
+Each invocation is expected to complete one bounded unit of work, update the state files, commit, and stop.
 
-### Existing Repo Bootstrap
-When adopting the harness into an existing repository, prefer working **in place** rather than copying the target codebase into a new wrapper folder. Many projects have path-sensitive scripts, workspace assumptions, or local tooling that become brittle when moved.
+This keeps the git history readable and makes the development narrative inspectable by another human or another model.
 
-Recommended bootstrap checklist:
-1. Copy `docs/agent-loop/skill.md` into `.agents/skills/agent-loop.md` in the target repo.
-2. Copy `docs/agent-loop/standards.md` and `docs/agent-loop/outer-loop-playbook.md` into `docs/agent-loop/`.
-3. Copy the template files from `docs/agent-loop/templates/` into the target repo.
-4. Create `docs/state/` and `docs/state/archive/`.
-5. Seed `docs/state/handover.md`, `docs/state/backlog.md`, and `docs/state/progress.md` from the matching templates.
-6. Create `docs/planning.md` from the planning template and populate it with the codebase constraints, current architecture, supplied artefacts, and out-of-scope items.
-7. Start the first run from the root of the target repo.
+### 3. Human Oversight, Not Agent Guessing
 
-If the target repo already has a `docs/` or `.agents/` directory, merge these files into the existing structure rather than relocating the codebase. Only use a copied-wrapper approach when the project is known to be location-independent and you explicitly want an isolated working clone.
+If the agent hits ambiguity, conflicting requirements, or an exhausted active backlog, it writes `tbd.md` and stops.
 
-## Directory Structure Overview
-- `skill.md` - The master system instruction governing the agent's step-by-step logic.
-- `templates/` - Standardized schemas for the markdown-driven state memory `(handover, tbd, etc)`.
-- `README.md` - (This document) The macro project architecture overview. 
+That is a deliberate control point. The human operator resolves the ambiguity in writing, updates the source documents, and only then starts the next run.
+
+### 4. Provider-Agnostic Execution
+
+The harness is intentionally orchestration-light. The provider is an implementation detail of the next run, not part of the state model.
+
+If the target repo is prepared correctly, different CLI agents should be able to pick up the same backlog and handover files and continue from the same local ground truth.
+
+## How To Use It
+
+### Option A: Create a New Trial Repo
+
+Run:
+
+```powershell
+.\init-trial.ps1
+```
+
+That scaffolds a sibling repo with:
+- the runtime skill in `.agents/skills/agent-loop.md`,
+- the operator docs in `docs/agent-loop/`,
+- empty planning/state files ready to populate.
+
+### Option B: Adopt It In An Existing Repo
+
+Copy the harness files into the target repository in place rather than wrapping the repo in another folder:
+
+1. Copy `docs/agent-loop/skill.md` to `.agents/skills/agent-loop.md`.
+2. Copy `docs/agent-loop/outer-loop-playbook.md` into `docs/agent-loop/`.
+3. Copy `docs/agent-loop/standards.md` into `docs/agent-loop/` and replace its placeholders with the project's actual standards.
+4. Optionally consult `docs/agent-loop/standards.sample.md` as an example of a populated standards file.
+5. Copy `docs/agent-loop/templates/` into the target repo and seed `docs/planning.md` plus the active `docs/state/` files from those templates.
+
+## Publishing Strategy
+
+This repo is strongest when published alongside at least one companion project that used it.
+
+The harness repo explains the method.
+The companion repo demonstrates the method through:
+- the evolving `docs/state/` files,
+- the `tbd` escalation trail,
+- and the git commit history of one-task-per-run delivery.
+
+That pairing makes the concept concrete for recruiters, hiring managers, or collaborators evaluating how you work with agentic loops in practice.
+
+## Next Reading
+
+- Deployment details: [docs/agent-loop/README.md](docs/agent-loop/README.md)
+- Human operator workflow: [docs/agent-loop/outer-loop-playbook.md](docs/agent-loop/outer-loop-playbook.md)

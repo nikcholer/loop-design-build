@@ -1,10 +1,7 @@
 # Feature Progress Log
 
-## Sprint / Milestone 1
-- [x] Initialized Vite/React project
-- [x] Defined initial architecture documents
-- [x] Created Agent Loop Skill definitions and templates
+## Current Sprint / Milestone
+- [ ] Record completed work items here as they land.
 
 ## Completed TDD Cycles
-- [x] Implemented standard Error handling middleware
-- [x] ...
+- [ ] Record each red-green-refactor slice here when relevant to the project.

@@ -3,17 +3,17 @@
 **Last Agent Exited At:** Initialization
 
 ## Primary Immediate Next Step
-- **Wake up.** Review your instructions in `.agents/skills/agent-loop.md`.
-- Read `docs/planning.md` to understand the domain constraints.
-- Then, navigate to `docs/state/backlog.md` and complete the initial High Priority task (generating the project tasks based on the provided data schema).
+- Review `.agents/skills/agent-loop.md`.
+- Read `docs/planning.md` and `docs/state/backlog.md`.
+- Complete the next highest-priority active backlog item without pulling work from the Icebox.
 
 ## Active Context
-- **Current Epic/Goal:** Initial Project Analysis & Backlog Generation
+- **Current Epic/Goal:** Initial project analysis and backlog generation
 - **Last File Modified:** None
 - **Current Blockers:** None
 
 ## Token Usage
-- Optional: record the approximate token usage for this run when that information is available.
+- Optional: record approximate token usage for the run when that information is available.
 
 ## Relevant Architectural Context
-- *Ensure you adhere strictly to the boundaries established in `planning.md` when proposing DTOs and Data Access Layers.*
+- Record only the project-specific constraints or decisions the next run must keep in working memory.
