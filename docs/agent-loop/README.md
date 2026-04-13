@@ -15,7 +15,7 @@ Copy these into the target repository:
 - `docs/agent-loop/standards.md`
   Project-specific coding and delivery standards. This file is intentionally a placeholder scaffold.
 - `docs/agent-loop/templates/`
-  Blank planning/state templates to seed the working documents.
+  Blank planning/state templates to seed the working documents. (Deploys to `docs/templates/`).
 
 Optional reference material:
 
@@ -31,9 +31,9 @@ Optional reference material:
 3. Copy `docs/agent-loop/standards.md` into `docs/agent-loop/`.
 4. Populate `docs/agent-loop/standards.md` from the target project's house style guide, vendor guidance, community best practices, or your own operating rules.
 5. If useful, consult `docs/agent-loop/standards.sample.md` for an example of a fully-populated standards file from a prior trial.
-6. Copy the files from `docs/agent-loop/templates/` into the target repo.
+6. Copy the files from `docs/agent-loop/templates/` into `docs/templates/` in the target repo.
 7. Create `docs/state/` and `docs/state/archive/`.
-8. Seed `docs/planning.md`, `docs/state/handover.md`, `docs/state/backlog.md`, and `docs/state/progress.md` from the matching templates.
+8. Seed `docs/planning.md`, `docs/state/handover.md`, `docs/state/backlog.md`, and `docs/state/progress.md` from the newly copied `docs/templates/`.
 9. Populate `docs/planning.md` with the project context, supplied artefacts, constraints, current priorities, and out-of-scope items.
 10. Review the seeded backlog and handover so the first run begins from intentional context rather than placeholder text.
 

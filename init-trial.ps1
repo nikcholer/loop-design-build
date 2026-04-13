@@ -34,9 +34,9 @@ $ScaffoldingHeaderPrefix = "`n🚀 Scaffolding new Agentic Trial Repo:"
 $ScaffoldingLocationPrefix = "Location:"
 $TargetExistsMessagePrefix = "Target directory already exists:"
 $SuccessMessagePrefix = "✅ Trial successfully created at:"
-$StartMessagePrefix = "To start: cd ../"
-$StartMessageSuffix = " and update docs\planning.md!"
-$SkillInjectorHintPrefix = "Optional: after listing skills in docs\planning.md, run"
+$StartMessagePrefix = "To begin: cd ../"
+$StartMessageSuffix = " and update docs\planning.md"
+$SkillInjectorHintPrefix = "Then run (optional):"
 $InitialCommitMessage = "chore: scaffold trial repo with agent loop skills and state templates"
 
 $SourceRepo = $PWD.Path
@@ -56,7 +56,9 @@ if (Test-Path -LiteralPath $TargetRepo) {
     exit 1
 }
 
-Write-Host "$ScaffoldingHeaderPrefix $TrialName"
+Write-Host "`n====================================================" -ForegroundColor Cyan
+Write-Host " 🚀 SCAFFOLDING NEW AGENTIC TRIAL" -ForegroundColor Cyan
+Write-Host "====================================================" -ForegroundColor Cyan
 Write-Host "$ScaffoldingLocationPrefix $TargetRepo"
 
 $DocsDir = Join-Path -Path $TargetRepo -ChildPath $DocsDirectoryName
@@ -110,7 +112,9 @@ git commit -m $InitialCommitMessage | Out-Null
 
 Pop-Location
 
-Write-Host "$SuccessMessagePrefix $TargetRepo"
-Write-Host "$StartMessagePrefix$TrialName$StartMessageSuffix"
-Write-Host ('{0} "{1}" -TargetRepoPath "{2}"' -f $SkillInjectorHintPrefix, $SkillInjectorPath, $TargetRepo)
+Write-Host "`n$SuccessMessagePrefix" -ForegroundColor Green
+Write-Host "  $TargetRepo"
+Write-Host "`n$StartMessagePrefix$TrialName$StartMessageSuffix" -ForegroundColor Yellow
+Write-Host "`n$SkillInjectorHintPrefix" -ForegroundColor Gray
+Write-Host "  powershell.exe -File ""$SkillInjectorPath"" -TargetRepoPath ""$TargetRepo""" -ForegroundColor Gray
 Write-Host ""
