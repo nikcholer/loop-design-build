@@ -114,7 +114,7 @@ To run Aider non-interactively (`--yes` to auto-approve edits and commits, `-m` 
 aider -m "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state." --yes --model <provider>/<model>
 ```
 
-> **Note on Custom Endpoints:** If you are temporarily mocking `OPENAI_API_BASE` and `OPENAI_API_KEY` in your shell to use an alternative provider (e.g., Together.ai, OpenRouter), ensure you unset them afterward (`Remove-Item Env:\OPENAI_API_BASE`) or use `.aider.conf.yml`. Leaving them exported will leak API routes into later terminal commands across different agent CLIs. Use `--no-show-model-warnings` to suppress browser warnings for unrecognized models.
+> **Note on Custom Endpoints:** For custom API routes (e.g., Together.ai, OpenRouter), it is strongly recommended to configure your endpoint strictly within a localized `.aider.conf.yml` file rather than mutating your shell environment. If you do override `OPENAI_API_BASE` and `OPENAI_API_KEY` in your terminal, ensure you unset both immediately afterward (`Remove-Item Env:\OPENAI_API_BASE, Env:\OPENAI_API_KEY`). Leaving them exported will silently hijack OpenAI traffic when using other CLI tools. Use `--no-show-model-warnings` to suppress browser pop-ups for unrecognized models.
 
 ### OpenCode
 
