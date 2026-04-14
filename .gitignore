@@ -15,3 +15,7 @@ Thumbs.db
 
 # Trial Repos (in case someone runs init-trial inside the repo accidentally)
 Trial-*/
+
+# Environment and Agent specific configurations
+.env
+.aider*
