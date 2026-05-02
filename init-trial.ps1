@@ -31,13 +31,8 @@ $RegisterSkillMessage = "-> Registering agent-loop.md skill..."
 $CopyStandardsMessage = "-> Copying agent loop coding standards..."
 $CopyOuterLoopPlaybookMessage = "-> Copying outer loop playbook..."
 $InitializeGitMessage = "-> Initializing Git and committing scaffolding..."
-$ScaffoldingHeaderPrefix = "`n🚀 Scaffolding new Agentic Trial Repo:"
 $ScaffoldingLocationPrefix = "Location:"
 $TargetExistsMessagePrefix = "Target directory already exists:"
-$SuccessMessagePrefix = "✅ Trial successfully created at:"
-$StartMessagePrefix = "To begin: cd ../"
-$StartMessageSuffix = " and update docs\planning.md"
-$SkillInjectorHintPrefix = "Then run (optional):"
 $InitialCommitMessage = "chore: scaffold trial repo with agent loop skills and state templates"
 
 $SourceRepo = $PWD.Path
@@ -140,7 +135,11 @@ Write-Host "`n✅ SUCCESS: Agentic Loop Harness scaffolded successfully." -Foreg
 Write-Host "  Location: $TargetRepo"
 
 Write-Host "`n[NEXT STEPS]" -ForegroundColor Cyan
-Write-Host "  1. cd ../$TrialName"
+if ([string]::IsNullOrWhiteSpace($TargetRepoPath)) {
+    Write-Host "  1. cd ../$TrialName"
+} else {
+    Write-Host "  1. cd ""$TargetRepo"""
+}
 Write-Host "  2. Populate docs/planning.md and docs/state/backlog.md"
 Write-Host "  3. Run your agent (e.g., aider --message 'Read docs/agent-loop/skill.md...')"
 

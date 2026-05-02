@@ -94,7 +94,11 @@ echo -e "\033[0;32m✅ SUCCESS: Agentic Loop Harness scaffolded successfully.\03
 echo "  Location: $TargetRepo"
 echo ""
 echo -e "\033[0;36m[NEXT STEPS]\033[0m"
-echo "  1. cd ../$TrialName"
+if [ -z "$TargetPath" ]; then
+    echo "  1. cd ../$TrialName"
+else
+    echo "  1. cd \"$TargetRepo\""
+fi
 echo "  2. Populate docs/planning.md and docs/state/backlog.md"
 echo "  3. Run your agent (e.g., aider --message 'Read docs/agent-loop/skill.md...')"
 echo ""
