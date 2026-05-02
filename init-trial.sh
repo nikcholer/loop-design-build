@@ -60,9 +60,11 @@ git init >/dev/null 2>&1
 git add .
 git commit -m "chore: scaffold trial repo with agent loop skills and state templates" >/dev/null 2>&1
 
+echo -e "\033[0;32m✅ SUCCESS: Agentic Loop Harness scaffolded successfully.\033[0m"
+echo "  Location: $TargetRepo"
 echo ""
-echo "✅ Trial successfully created at:"
-echo "  $TargetRepo"
-echo ""
-echo -e "\033[33mTo begin: cd ../$TrialName and update docs/planning.md\033[0m"
+echo -e "\033[0;36m[NEXT STEPS]\033[0m"
+echo "  1. cd ../$TrialName"
+echo "  2. Populate docs/planning.md and docs/state/backlog.md"
+echo "  3. Run your agent (e.g., aider --message 'Read docs/agent-loop/skill.md...')"
 echo ""

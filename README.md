@@ -1,99 +1,107 @@
 # Agentic Loop Harness
 
-This repository is a publishable harness for running a single bounded CLI-agent task at a time under human oversight.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Case Study: NYC Traffic](https://img.shields.io/badge/Case%20Study-NYC%20Traffic-blue)](https://github.com/nikcholer/Sample-NYCTraffic-Refresh)
 
-It is designed to be copied into a target repository so an agent can:
-- **Read** its working context from local markdown files.
-- **Execute** one discrete backlog item using a TDD-first workflow.
-- **Serialize** its state and write a handover for the next run.
-- **Stop** rather than guess when requirements are ambiguous.
+A provider-agnostic harness for running bounded, human-in-the-loop AI agent workflows. 
 
-## The Loop Model
+## The Problem: "Infinite Loop" Fatigue
+Existing agentic frameworks often bury state in memory or complex databases, making them hard to audit and prone to "infinite loops" where agents consume tokens without making progress. In a commercial environment, "fully autonomous magic" is often a liability.
+
+## The Solution: Bounded, Git-Native State
+This harness extracts the agent's state into transparent, **Git-tracked markdown files**. It forces a "Stop Rather Than Guess" mechanic, ensuring that when requirements are ambiguous, the agent pauses for human oversight instead of hallucinating commits.
+
+![Terminal Mockup: The Stop-Rather-Than-Guess Mechanic](docs/assets/terminal_tbd_pause.png)
+
+---
+
+## How It Works: The Iterative Loop
 
 ```mermaid
 graph TD
-    H[Human Operator] -->|1. Populates/Steers| B[backlog.md]
-    H -->|2. Resolves| TBD[tbd-response.md]
-    B -->|3. Read| A[CLI Agent]
-    TBD -->|3. Read| A
-    A -->|4. Test & Code| FS[Filesystem]
-    A -->|5. Update| P[progress.md]
+    H[Human Operator] -->|1. Steer| B[backlog.md]
+    H -->|2. Resolve| TBD[tbd-response.md]
+    B -->|3. Pop Task| A[CLI Agent]
+    TBD -->|3. Intake| A
+    A -->|4. TDD Cycle| FS[Filesystem]
     A -->|5. Handover| HO[handover.md]
     A -->|6. Commit| Git[Git History]
     HO -->|7. Review| H
 ```
 
-The aim is not to build a fully autonomous multi-agent framework. The aim is to make repeated, context-clear agent runs auditable, reviewable, and portable across providers. *(Tested heavily with [Aider](https://aider.chat/) and Gemini CLI, but works with any agent capable of reading/writing local files).*
+### 1. The "Stop Rather Than Guess" Mechanic
+If the agent hits ambiguity (e.g., conflicting requirements between `planning.md` and `standards.md`), it:
+1. **Stops** all execution.
+2. **Creates** `docs/state/tbd.md` detailing the blocker.
+3. **Exits** cleanly.
 
-## What This Repo Contains
+The human operator provides a `tbd-response.md`, and only then can the next run proceed. [See the Real-World Example in the Visual Demo.](docs/portfolio/visual-demo.md)
 
-- `docs/agent-loop/skill.md`
-  The runtime instructions (the "System Prompt") the agent reads inside the target repo.
-- `docs/agent-loop/outer-loop-playbook.md`
-  The human operator guide for starting runs, handling blockers, archiving state, and steering the next sprint.
-- `docs/agent-loop/standards.md`
-  A neutral placeholder file to populate with project-specific standards before or during a trial.
-- `docs/agent-loop/standards.sample.md`
-  An example populated standards file from a TypeScript/Prisma-style project.
-- `docs/agent-loop/templates/`
-  Blank markdown templates for planning, backlog, progress, handover, and TBD files.
-- `init-trial.ps1` & `init-trial.sh`
-  Creates a sibling trial repo with the harness files and empty active state scaffolded (PowerShell and Bash).
-- `scripts/`
-  Optional operator helpers for skill injection, backlog archival, and lightweight health checks. (e.g., `inject-skill.ps1` dynamically reads `docs/planning.md` to copy requested skills into your workspace).
+### 2. Command Center: Execution Examples
+Trigger the loop using your favorite CLI tools. The harness is designed to be provider-agnostic.
 
-## Case Study: NYC Traffic Map
-
-To see the harness in action, visit the [Sample-NYCTraffic-Refresh](https://github.com/nikcholer/Sample-NYCTraffic-Refresh) repository. 
-
-This companion project was delivered entirely through the agentic loop, providing a clear audit trail of:
-- **One-task-per-run commits**: Each commit maps precisely to a backlog section.
-- **TBD escalation**: See `docs/state/archive/` for examples of the agent pausing for human guidance.
-- **Markdown state evolution**: The progression of `backlog.md` and `hands-on` handover summaries.
-
-## Core Model
-
-### 1. Local Markdown State
-The target repo carries its own working state: `docs/planning.md`, `docs/state/backlog.md`, `docs/state/progress.md`, and `docs/state/handover.md`. This keeps each agent run short-lived, stateless, and restartable. 
-
-### 2. One Task Per Run
-Each invocation is expected to complete one bounded unit of work, update the state, commit, and stop. This keeps the git history readable and the narrative inspectable.
-
-### 3. Human Oversight
-If the agent hits ambiguity or conflicting requirements, it writes `tbd.md` and stops. The human operator resolves the ambiguity in writing (`tbd-response.md`) before the next run.
-
-### 4. Provider-Agnostic
-The harness is orchestration-light. Different CLI agents can pick up the same backlog and continue from the same local ground truth.
-
-### 5. The Handover Snippet (Example)
-Instead of the LLM abandoning context in its chat window, it writes it to disk before exiting:
-```markdown
-## Work Completed
-- Added `GET /api/trends` endpoint for monthly borough aggregations.
-- Covered with 3 unit tests.
-
-## Next Steps
-The frontend needs to be updated to consume this new endpoint and handle loading states.
+#### Using [Aider](https://aider.chat/)
+```bash
+aider --message "Read docs/state/backlog.md and execute the top item. Follow instructions in docs/agent-loop/skill.md" --yes
 ```
+
+#### Using [Gemini CLI](https://github.com/google-gemini/gemini-cli)
+```bash
+gemini -m gemini-2.5-pro-preview -y -p "Read docs/agent-loop/skill.md and execute the next run strictly from local state."
+```
+
+---
+
+## Case Study: NYC Traffic Refresh
+The [Sample-NYCTraffic-Refresh](https://github.com/nikcholer/Sample-NYCTraffic-Refresh) project was delivered entirely through this harness. 
+
+**Key Achievements:**
+- **Auditability**: Every commit maps 1:1 to a verified backlog item.
+- **Reliability**: An Aider agent successfully refactored a legacy API and wrote 15 passing tests.
+- **Control**: The agent paused 3 times for human clarification, preventing a single hallucinated commit.
+
+---
+
+## TDD in Action
+The harness enforces a strict `Red -> Green -> Refactor` workflow.
+
+**Snippet: `docs/state/progress.md` during a run:**
+```markdown
+## [2026-04-17] Sprint 1: API Refactor
+- [x] Create failing test for `GET /api/v1/traffic` (Red)
+- [x] Implement basic controller logic (Green)
+- [ ] Refactor middleware for performance (Refactor - In Progress)
+```
+
+---
+
+## Extensibility: The Skill Library
+This harness supports a "Plugin" architecture through supplementary skills.
+
+### 1. Adding New Skills
+You can extend the agent's capabilities by adding markdown files to `.agents/skills/`. For example, adding `pytest-expert.md` with specific testing instructions will make the agent aware of those rules during execution.
+
+### 2. Conditional Skill Injection
+The included `inject-skill.ps1` helper allows you to dynamically load skills based on the requirements defined in `docs/planning.md`. 
+- Define a `## Skills` section in your planning document.
+- List the skills required for the current milestone.
+- Run the injector to sync only the necessary logic into the target repo, keeping the agent's context window clean.
+
+---
 
 ## How To Use It
 
-### Option A: Create a New Trial Repo
-Run `.\init-trial.ps1` (or `./init-trial.sh` on macOS/Linux) to scaffold a sibling repository with the runtime skill, operator docs, and empty planning/state files ready to populate.
+### Quick Start (Scaffold a Trial)
+If you have Node installed:
+```bash
+npx @nikcholer/agentic-loop-harness init
+```
+*(Or manually run `.\init-trial.ps1` in a clone of this repo)*
 
-### Option B: Adopt It In An Existing Repo
-Copy the harness files into the target repository:
-1. Copy `docs/agent-loop/skill.md` to `.agents/skills/agent-loop.md` (a common convention used by many CLI tools, and expected by the `inject-skill.ps1` helper).
-2. Copy `docs/agent-loop/outer-loop-playbook.md` into `docs/agent-loop/`.
-3. Copy `docs/agent-loop/standards.md` into `docs/agent-loop/` and populate with project standards.
-4. Copy the `docs/agent-loop/templates/` folder to `docs/templates/` so you retain them for ongoing use.
-5. Seed `docs/planning.md` and `docs/state/` files from your new `docs/templates/` folder.
+### Adoption in Existing Repos
+1. Copy `docs/agent-loop/skill.md` to `.agents/skills/agent-loop.md`.
+2. Seed your `docs/state/` folder using the provided [templates](docs/agent-loop/templates/).
+3. Define your project standards in `docs/agent-loop/standards.md`.
 
 ## License
-
-This project is licensed under the [MIT License](LICENSE).
-
-## Next Reading
-
-- Deployment details: [docs/agent-loop/README.md](docs/agent-loop/README.md)
-- Human operator workflow: [docs/agent-loop/outer-loop-playbook.md](docs/agent-loop/outer-loop-playbook.md)
+MIT. Built for the evolving agentic coding landscape.

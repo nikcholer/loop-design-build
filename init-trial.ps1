@@ -112,9 +112,14 @@ git commit -m $InitialCommitMessage | Out-Null
 
 Pop-Location
 
-Write-Host "`n$SuccessMessagePrefix" -ForegroundColor Green
-Write-Host "  $TargetRepo"
-Write-Host "`n$StartMessagePrefix$TrialName$StartMessageSuffix" -ForegroundColor Yellow
-Write-Host "`n$SkillInjectorHintPrefix" -ForegroundColor Gray
+Write-Host "`n✅ SUCCESS: Agentic Loop Harness scaffolded successfully." -ForegroundColor Green
+Write-Host "  Location: $TargetRepo"
+
+Write-Host "`n[NEXT STEPS]" -ForegroundColor Cyan
+Write-Host "  1. cd ../$TrialName"
+Write-Host "  2. Populate docs/planning.md and docs/state/backlog.md"
+Write-Host "  3. Run your agent (e.g., aider --message 'Read docs/agent-loop/skill.md...')"
+
+Write-Host "`n[OPTIONAL: Skill Injection]" -ForegroundColor Gray
 Write-Host "  powershell.exe -File ""$SkillInjectorPath"" -TargetRepoPath ""$TargetRepo""" -ForegroundColor Gray
 Write-Host ""

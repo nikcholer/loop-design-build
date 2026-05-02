@@ -124,6 +124,15 @@ If you prefer a Node.js-based agent framework, configure your credentials intera
 opencode run -m "<provider>/<model_name>" "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state."
 ```
 
+See https://api.together.ai/models for a list of available models.
+Sample model string for togetherAI models:
+moonshotai/Kimi-K2.6
+zai-org/GLM-5.1
+
+To use from Opencode, add the togetherai/ prefix:
+```powershell
+opencode run -m "togetherai/zai-org/GLM-5.1" "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state."
+```
 
 ### Operating Rule
 
