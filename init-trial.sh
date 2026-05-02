@@ -1,19 +1,42 @@
 #!/usr/bin/env bash
 set -e
 
-TrialName="$1"
+TrialName=""
+TargetPath=""
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -t|--target) TargetPath="$2"; shift ;;
+        *) TrialName="$1" ;;
+    esac
+    shift
+done
+
 SourceRepo="$(pwd)"
 
-if [ -z "$TrialName" ]; then
-    timestamp=$(date +"%Y%m%d%H%M%S")
-    TrialName="Trial-$timestamp"
-fi
+if [ -z "$TargetPath" ]; then
+    if [ -z "$TrialName" ]; then
+        timestamp=$(date +"%Y%m%d%H%M%S")
+        TrialName="Trial-$timestamp"
+    fi
 
-TargetRepo="$(cd ../ && pwd)/$TrialName"
+    TargetRepo="$(cd ../ && pwd)/$TrialName"
 
-if [ -d "$TargetRepo" ]; then
-    echo "Target directory already exists: $TargetRepo"
-    exit 1
+    if [ -d "$TargetRepo" ]; then
+        echo "Target directory already exists: $TargetRepo"
+        exit 1
+    fi
+else
+    TargetRepo="$(cd "$TargetPath" && pwd)"
+    echo "-> Injecting into existing repository at: $TargetRepo"
+    
+    ConflictFiles=("docs/planning.md" ".agents/skills/agent-loop.md" "docs/agent-loop/outer-loop-playbook.md")
+    for file in "${ConflictFiles[@]}"; do
+        if [ -f "$TargetRepo/$file" ]; then
+            echo "Conflict detected: The file '$file' already exists in the target repository. Scaffolding aborted to prevent overwriting."
+            exit 1
+        fi
+    done
 fi
 
 echo ""
@@ -54,11 +77,18 @@ cp docs/agent-loop/outer-loop-playbook.md "$AgentLoopDocsDir/outer-loop-playbook
 echo "-> Seeding planning document..."
 cp docs/agent-loop/templates/planning.md "$DocsDir/planning.md"
 
-echo "-> Initializing Git and committing scaffolding..."
 cd "$TargetRepo"
-git init >/dev/null 2>&1
-git add .
-git commit -m "chore: scaffold trial repo with agent loop skills and state templates" >/dev/null 2>&1
+
+if [ ! -d ".git" ]; then
+    echo "-> Initializing Git and committing scaffolding..."
+    git init >/dev/null 2>&1
+    git add .
+    git commit -m "chore: scaffold trial repo with agent loop skills and state templates" >/dev/null 2>&1
+else
+    echo "-> Existing Git repository detected. Staging agent harness files..."
+    git add docs/ .agents/
+    git commit -m "chore: integrate agent loop harness" >/dev/null 2>&1
+fi
 
 echo -e "\033[0;32m✅ SUCCESS: Agentic Loop Harness scaffolded successfully.\033[0m"
 echo "  Location: $TargetRepo"

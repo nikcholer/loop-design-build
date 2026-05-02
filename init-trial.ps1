@@ -1,5 +1,6 @@
 param(
-    [string]$TrialName = ""
+    [string]$TrialName = "",
+    [string]$TargetRepoPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -43,17 +44,34 @@ $SourceRepo = $PWD.Path
 $ParentDir = Split-Path -Path $SourceRepo -Parent
 $SkillInjectorPath = Join-Path -Path $SourceRepo -ChildPath $SkillInjectorRelativePath
 
-if ([string]::IsNullOrWhiteSpace($TrialName)) {
-    $TimestampFormat = "yyyyMMddHHmmss"
-    $timestamp = Get-Date -Format $TimestampFormat
-    $TrialName = "Trial-$timestamp"
-}
+if ([string]::IsNullOrWhiteSpace($TargetRepoPath)) {
+    if ([string]::IsNullOrWhiteSpace($TrialName)) {
+        $TimestampFormat = "yyyyMMddHHmmss"
+        $timestamp = Get-Date -Format $TimestampFormat
+        $TrialName = "Trial-$timestamp"
+    }
 
-$TargetRepo = Join-Path -Path $ParentDir -ChildPath $TrialName
+    $TargetRepo = Join-Path -Path $ParentDir -ChildPath $TrialName
 
-if (Test-Path -LiteralPath $TargetRepo) {
-    Write-Error "$TargetExistsMessagePrefix $TargetRepo"
-    exit 1
+    if (Test-Path -LiteralPath $TargetRepo) {
+        Write-Error "$TargetExistsMessagePrefix $TargetRepo"
+        exit 1
+    }
+} else {
+    $TargetRepo = (Resolve-Path -Path $TargetRepoPath -ErrorAction Stop).Path
+    Write-Host "-> Injecting into existing repository at: $TargetRepo"
+
+    $ConflictFiles = @(
+        "docs\planning.md",
+        ".agents\skills\agent-loop.md",
+        "docs\agent-loop\outer-loop-playbook.md"
+    )
+    foreach ($file in $ConflictFiles) {
+        if (Test-Path (Join-Path $TargetRepo $file)) {
+            Write-Error "Conflict detected: The file '$file' already exists in the target repository. Scaffolding aborted to prevent overwriting."
+            exit 1
+        }
+    }
 }
 
 Write-Host "`n====================================================" -ForegroundColor Cyan
@@ -103,12 +121,18 @@ $PlanningDoc = Join-Path -Path $DocsDir -ChildPath $PlanningFileName
 Write-Host $SeedPlanningMessage
 Copy-Item -Path $SourcePlanningTemplate -Destination $PlanningDoc -Force
 
-Write-Host $InitializeGitMessage
 Push-Location -Path $TargetRepo
 
-git init | Out-Null
-git add .
-git commit -m $InitialCommitMessage | Out-Null
+if (-not (Test-Path ".git")) {
+    Write-Host $InitializeGitMessage
+    git init | Out-Null
+    git add .
+    git commit -m $InitialCommitMessage | Out-Null
+} else {
+    Write-Host "-> Existing Git repository detected. Staging agent harness files..."
+    git add docs\ .agents\
+    git commit -m "chore: integrate agent loop harness" | Out-Null
+}
 
 Pop-Location
 
