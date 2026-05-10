@@ -3,7 +3,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Case Study: NYC Traffic](https://img.shields.io/badge/Case%20Study-NYC%20Traffic-blue)](https://github.com/nikcholer/Sample-NYCTraffic-Refresh)
 
-A provider-agnostic harness for running bounded, human-in-the-loop AI agent workflows. 
+A provider-agnostic harness for running bounded, human-in-the-loop AI agent workflows. It is designed for teams that want the productivity of agentic development without losing auditability, stop points, reviewable state, or portability across AI tools.
+
+## Portfolio Narrative
+
+This project demonstrates a practical governance pattern for AI-assisted SDLC work. The agent can plan, edit and test, but its state is externalized into Git-tracked markdown files and it must stop when requirements are ambiguous. That makes the workflow inspectable by ordinary engineering practices rather than hidden inside a chat transcript or vendor-specific memory layer.
 
 ## The Problem: "Infinite Loop" Fatigue
 Existing agentic frameworks often bury state in memory or complex databases, making them hard to audit and prone to "infinite loops" where agents consume tokens without making progress. In a commercial environment, "fully autonomous magic" is often a liability.
