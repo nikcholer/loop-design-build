@@ -1,27 +1,46 @@
 {
   "name": "@nikcholer/agentic-loop-harness",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A provider-agnostic harness for bounded, human-in-the-loop AI agent workflows.",
-  "main": "index.js",
   "bin": {
     "agentic-loop": "./scripts/cli.js"
   },
+  "files": [
+    "scripts/",
+    "docs/agent-loop/",
+    "init-trial.ps1",
+    "init-trial.sh",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "scripts": {
-    "init": "powershell -ExecutionPolicy Bypass -File ./init-trial.ps1",
-    "init:sh": "bash ./init-trial.sh",
-    "lint": "echo \"Scanning markdown state...\" && [ -d docs/state ] || (echo \"docs/state missing\" && exit 1)"
+    "init": "node ./scripts/cli.js init",
+    "health": "node ./scripts/cli.js health",
+    "compliance": "node ./tests/compliance/check.js",
+    "init:ps1": "pwsh -ExecutionPolicy Bypass -File ./init-trial.ps1",
+    "init:sh": "bash ./init-trial.sh"
   },
   "keywords": [
     "ai",
     "agents",
-    "aider",
+    "agentic",
+    "human-in-the-loop",
+    "git-native",
+    "grok",
+    "claude-code",
     "gemini",
+    "aider",
+    "opencode",
+    "codex",
     "tdd",
-    "automation",
-    "human-in-the-loop"
+    "harness"
   ],
   "author": "nikcholer",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/nikcholer/loop-design-build.git"

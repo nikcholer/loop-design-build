@@ -16,17 +16,21 @@ Copy these into the target repository:
   Project-specific coding and delivery standards. This file is intentionally a placeholder scaffold.
 - `docs/agent-loop/templates/`
   Blank planning/state templates to seed the working documents. (Deploys to `docs/templates/`).
+- `docs/agent-loop/skill.md`
+  Same runtime skill, kept next to the playbook so either path works.
 
 Optional reference material:
 
 - `docs/agent-loop/standards.sample.md`
   A populated example from a TypeScript/Prisma API project. Use it as a pattern, not as a default.
 - `scripts/`
-  Helper scripts for backlog archival, skill injection, and repo health checks.
+  Operator tools: health check, bounded outer-loop runner, backlog archival, and skill injection.
+- Node CLI (`npx @nikcholer/agentic-loop-harness`)
+  Portable `init`, `health`, and `run` commands. The published package does not include the portfolio images.
 
 ## Bootstrap Checklist
 
-1. Copy `docs/agent-loop/skill.md` into `.agents/skills/agent-loop.md` in the target repo.
+1. Copy `docs/agent-loop/skill.md` into `.agents/skills/agent-loop.md` in the target repo. Also keep a copy at `docs/agent-loop/skill.md`.
 2. Copy `docs/agent-loop/outer-loop-playbook.md` into `docs/agent-loop/`.
 3. Copy `docs/agent-loop/standards.md` into `docs/agent-loop/`.
 4. Populate `docs/agent-loop/standards.md` from the target project's house style guide, vendor guidance, community best practices, or your own operating rules.
@@ -55,3 +59,11 @@ Good sources for a populated project standards file include:
 - repo-specific constraints that the agent must not violate.
 
 Keep only standards that should be enforced in the target project. Anything stack-specific belongs in the populated project file or in a clearly-labelled sample, not in the generic scaffold.
+
+## Operator Path
+
+- **PowerShell Core** (`pwsh`) is the richest operator path and works on Windows, macOS, and Linux.
+- **bash** is first-class for `init-trial.sh`, `scripts/check-health.sh`, and `scripts/run-loop.sh`.
+- **Node 18+** is the portable path: `npx @nikcholer/agentic-loop-harness init|health|run`.
+
+Archival and skill injection remain PowerShell scripts. Run them with `pwsh` on Unix if you need those helpers.

@@ -8,7 +8,16 @@ The **outer loop** is everything that happens between individual agent runs: the
 
 ## First-Time Bootstrap
 
-If you are starting from a new project idea, use `init-trial.ps1` to create a scaffolded trial repo and work there.
+If you are starting from a new project idea, scaffold a trial repo and work there:
+
+```bash
+npx @nikcholer/agentic-loop-harness init
+# or, from a clone:
+pwsh -File ./init-trial.ps1          # Windows / PowerShell Core (recommended)
+./init-trial.sh                      # Linux / macOS
+```
+
+PowerShell Core (`pwsh`) is the richest operator path and works on Windows, macOS, and Linux. The bash `init-trial.sh` plus `scripts/check-health.sh` and `scripts/run-loop.sh` cover the same first-run path without PowerShell. The Node CLI (`init`, `health`, `run`) is the portable option when you already have Node.
 
 If you are taking over an existing repository, prefer adopting the harness in place. Do not copy the target codebase into a wrapper folder unless you know the project is location-independent and want an isolated clone.
 
@@ -84,35 +93,86 @@ At any point between runs, the human orchestrator may:
 
 ---
 
+## Pre-Run Ritual
+
+Before every loop, prefer a clean tree and a passing health check:
+
+```bash
+git status
+
+npx @nikcholer/agentic-loop-harness health
+# or:
+pwsh -File scripts/check-health.ps1
+# bash scripts/check-health.sh
+```
+
+Pass a project verification command when you have one:
+
+```powershell
+pwsh -File scripts/check-health.ps1 -VerificationCommand npm,test
+```
+
+Do not start a run while `docs/state/tbd.md` exists without `docs/state/tbd-response.md`.
+
 ## Starting an Agent Run
 
-Run the following from the root of the target repo.
+Run the following from the root of the target repo. Keep this prompt string identical across providers:
+
+```text
+Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state.
+```
+
+The scaffold installs that file at `.agents/skills/agent-loop.md` and also keeps a copy at `docs/agent-loop/skill.md`. Prefer the `.agents/skills/` path in commands so skill discovery and the prompt agree.
+
+Prefer a turn or budget cap when the provider offers one (`--max-turns 15` is a good default). The harness already bounds work to one backlog item; the cap is a safety net against a runaway tool loop.
+
+### Grok Build
+
+```powershell
+grok -p "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state." --always-approve --max-turns 15
+```
+
+`--always-approve` is the product name for unattended tool approval (`--yolo` is an alias). Use it only in a trusted local repo. JSON / ACP event streams from `--output-format json` or `grok agent` are telemetry; they do not replace `docs/state/*.md`.
+
+### Claude Code
+
+```powershell
+claude -p "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state." --dangerously-skip-permissions --max-turns 15
+```
+
+`--print` / `-p` is required for a non-interactive run. Omit `--max-turns` only if your installed Claude Code build does not advertise the flag.
 
 ### OpenAI Codex
 
 ```powershell
-codex exec -m gpt-5.4 --dangerously-bypass-approvals-and-sandbox "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state."
+codex exec --dangerously-bypass-approvals-and-sandbox "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state."
 ```
+
+Add `-m <model>` when you want to pin a specific Codex model.
 
 ### Gemini CLI
 
 ```powershell
-gemini -m gemini-2.5-pro-preview --prompt "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state." --approval-mode yolo
+gemini -m gemini-2.5-pro --approval-mode yolo -p "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state."
 ```
 
 Equivalent short form:
 
 ```powershell
-gemini -m gemini-2.5-pro-preview -p "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state." -y
+gemini -m gemini-2.5-pro -y -p "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state."
 ```
+
+Substitute the current Gemini model id if `gemini-2.5-pro` is no longer the right default on your CLI.
 
 ### Aider
 
 To run Aider non-interactively (`--yes` to auto-approve edits and commits, `-m` to execute a single prompt and exit), use the following syntax:
 
 ```powershell
-aider -m "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state." --yes --model <provider>/<model>
+aider -m "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state." --yes --no-gitignore --model <provider>/<model>
 ```
+
+`--no-gitignore` keeps Aider from rewriting project ignore rules mid-run. To keep Aider metadata out of the repo, add `--map-tokens 0` and/or point history files outside the tree with `--input-history-file`, `--chat-history-file`, and `--llm-history-file`. The harness scaffold already ignores `.aider*`.
 
 > **Note on Custom Endpoints:** For custom API routes (e.g., Together.ai, OpenRouter), it is strongly recommended to configure your endpoint strictly within a localized `.aider.conf.yml` file rather than mutating your shell environment. If you do override `OPENAI_API_BASE` and `OPENAI_API_KEY` in your terminal, ensure you unset both immediately afterward (`Remove-Item Env:\OPENAI_API_BASE, Env:\OPENAI_API_KEY`). Leaving them exported will silently hijack OpenAI traffic when using other CLI tools. Use `--no-show-model-warnings` to suppress browser pop-ups for unrecognized models.
 
@@ -121,18 +181,41 @@ aider -m "Read .agents/skills/agent-loop.md and execute the next run strictly fr
 If you prefer a Node.js-based agent framework, configure your credentials interactively (`opencode auth login`), set your default model, and execute purely headlessly:
 
 ```powershell
-opencode run -m "<provider>/<model_name>" "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state."
+opencode run --dangerously-skip-permissions --log-level WARN "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state."
 ```
 
-See https://api.together.ai/models for a list of available models.
-Sample model string for togetherAI models:
-moonshotai/Kimi-K2.6
-zai-org/GLM-5.1
+Pin a model with `-m "<provider>/<model_name>"`. See https://api.together.ai/models for OpenAI-compatible hosted models.
 
-To use from Opencode, add the togetherai/ prefix:
+Sample Together AI model strings: `moonshotai/Kimi-K2.6`, `zai-org/GLM-5.1`. Prefix them with `togetherai/` for OpenCode:
+
 ```powershell
-opencode run -m "togetherai/zai-org/GLM-5.1" "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state."
+opencode run -m "togetherai/zai-org/GLM-5.1" --dangerously-skip-permissions --log-level WARN "Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state."
 ```
+
+Use `opencode run`, not `opencode .`, for non-interactive execution. `--log-level WARN` keeps message-delta noise out of the terminal.
+
+## Bounded Outer Loop
+
+To run several iterations without giving up the human stop point:
+
+```bash
+npx @nikcholer/agentic-loop-harness run --provider grok --max-runs 5
+# or, from a clone:
+pwsh -File scripts/run-loop.ps1 -Provider grok -MaxRuns 5
+# bash scripts/run-loop.sh --provider grok --max-runs 5
+```
+
+The runner health-checks once at the start (unless a TBD is already open), invokes the provider once per iteration, and **stops** when `docs/state/tbd.md` appears without a response. It does not resolve blockers. Pass `--wait-for-response` only for attended demos where you will drop `tbd-response.md` while the runner is parked.
+
+## ACP and Structured Output
+
+Several CLIs can emit ACP, JSON, or `stream-json` event streams. Those streams are useful for dashboards and spend tracking. They are not the harness source of truth.
+
+The record of a run is still:
+
+- the Git-tracked markdown in `docs/state/` and `docs/planning.md`,
+- the commit produced at the end of a successful run,
+- and `docs/state/tbd.md` when the agent must stop.
 
 ### Operating Rule
 

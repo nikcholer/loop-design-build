@@ -100,6 +100,7 @@ $SourceSkill = Join-Path -Path $SourceRepo -ChildPath $SourceSkillPath
 $DestSkill = Join-Path -Path $SkillsDir -ChildPath $SkillFileName
 Write-Host $RegisterSkillMessage
 Copy-Item -Path $SourceSkill -Destination $DestSkill -Force
+Copy-Item -Path $SourceSkill -Destination (Join-Path -Path $AgentLoopDocsDir -ChildPath "skill.md") -Force
 
 $SourceStandards = Join-Path -Path $SourceRepo -ChildPath $SourceStandardsPath
 $DestStandards = Join-Path -Path $AgentLoopDocsDir -ChildPath $StandardsFileName
@@ -110,6 +111,29 @@ $SourceOuterLoopPlaybook = Join-Path -Path $SourceRepo -ChildPath $SourceOuterLo
 $DestOuterLoopPlaybook = Join-Path -Path $AgentLoopDocsDir -ChildPath $OuterLoopPlaybookFileName
 Write-Host $CopyOuterLoopPlaybookMessage
 Copy-Item -Path $SourceOuterLoopPlaybook -Destination $DestOuterLoopPlaybook -Force
+
+$SourceStandardsSample = Join-Path -Path $SourceRepo -ChildPath "docs\agent-loop\standards.sample.md"
+if (Test-Path -LiteralPath $SourceStandardsSample) {
+    Copy-Item -Path $SourceStandardsSample -Destination (Join-Path -Path $AgentLoopDocsDir -ChildPath "standards.sample.md") -Force
+}
+
+$OperatorScripts = @(
+    "check-health.ps1",
+    "check-health.sh",
+    "run-loop.ps1",
+    "run-loop.sh",
+    "archive-backlog.ps1",
+    "inject-skill.ps1"
+)
+$TargetScriptsDir = Join-Path -Path $TargetRepo -ChildPath "scripts"
+New-Item -Path $TargetScriptsDir -ItemType Directory -Force | Out-Null
+Write-Host "-> Copying operator scripts..."
+foreach ($scriptName in $OperatorScripts) {
+    $sourceScript = Join-Path -Path $SourceRepo -ChildPath (Join-Path "scripts" $scriptName)
+    if (Test-Path -LiteralPath $sourceScript) {
+        Copy-Item -Path $sourceScript -Destination (Join-Path -Path $TargetScriptsDir -ChildPath $scriptName) -Force
+    }
+}
 
 $SourcePlanningTemplate = Join-Path -Path $SourceRepo -ChildPath $SourcePlanningTemplatePath
 $PlanningDoc = Join-Path -Path $DocsDir -ChildPath $PlanningFileName
@@ -125,7 +149,7 @@ if (-not (Test-Path ".git")) {
     git commit -m $InitialCommitMessage | Out-Null
 } else {
     Write-Host "-> Existing Git repository detected. Staging agent harness files..."
-    git add docs\ .agents\
+    git add docs\ .agents\ scripts\
     git commit -m "chore: integrate agent loop harness" | Out-Null
 }
 
@@ -141,7 +165,8 @@ if ([string]::IsNullOrWhiteSpace($TargetRepoPath)) {
     Write-Host "  1. cd ""$TargetRepo"""
 }
 Write-Host "  2. Populate docs/planning.md and docs/state/backlog.md"
-Write-Host "  3. Run your agent (e.g., aider --message 'Read docs/agent-loop/skill.md...')"
+Write-Host "  3. Run: git status; pwsh -File scripts/check-health.ps1"
+Write-Host "  4. grok -p `"Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state.`" --always-approve --max-turns 15"
 
 Write-Host "`n[OPTIONAL: Skill Injection]" -ForegroundColor Gray
 Write-Host "  powershell.exe -File ""$SkillInjectorPath"" -TargetRepoPath ""$TargetRepo""" -ForegroundColor Gray

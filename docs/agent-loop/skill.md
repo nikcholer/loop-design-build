@@ -3,7 +3,7 @@
 ## Overview
 This instruction set dictates your behavior when invoked as a headless agent within an iterative loop. Your purpose is to wake up, understand your state entirely from local markdown documents, execute a single discrete unit of work, serialize your state, and exit cleanly.
 
-Within this harness, the repository-local workflow defined in this file is the operative instruction set for the run. In particular, if you complete a successful run that changed files, **Phase 6 commit behavior is mandatory** unless you stopped behind an unresolved `tbd.md` or an explicitly escalated dirty-worktree ambiguity.
+This file is the **headless-run contract**. In an interactive pairing session the operator may reasonably review before you commit. Within this harness, if you complete a successful run that changed files, **Phase 6 commit behavior is mandatory** unless you stopped behind an unresolved `tbd.md` or an explicitly escalated dirty-worktree ambiguity.
 
 ## Phase 1: Pre-Flight Health Check (Locality & State assessment)
 Before writing any code or altering the backlog, you MUST verify your physical and logical locality.
@@ -20,7 +20,7 @@ Before writing any code or altering the backlog, you MUST verify your physical a
 
 1. Check for the existence of `docs/state/tbd.md`.
 2. **If `tbd.md` exists AND `docs/state/tbd-response.md` does not exist**: The human has not resolved your blocker. **ABORT EXECUTION IMMEDIATELY**. Do not make any changes.
-3. **If `tbd.md` exists AND `tbd-response.md` exists**: 
+3. **If `tbd.md` exists AND `tbd-response.md` exists**:
    - Read the human's guidance in `tbd-response.md`.
    - **Crucial Step:** Before proceeding, you must update the underlying requirements documents (e.g., `planning.md`, `requirements.md`) to close the loop on this ambiguity so it does not arise again. This ensures the source of truth is always absolute.
    - Archive the files: Move `tbd.md` and `tbd-response.md` to `docs/state/archive/` and prefix both with the current timestamp format: `YYYYMMDDHHMMSS_tbd.md` and `YYYYMMDDHHMMSS_tbd-response.md`.
@@ -29,20 +29,23 @@ Before writing any code or altering the backlog, you MUST verify your physical a
 ## Phase 2: Context Intake
 1. Read `docs/agent-loop/standards.md` and internalize all coding standards. These apply to every line of code you write or modify in this session.
 2. Check `.agents/skills/` for any supplementary skill files beyond `agent-loop.md`. For each additional file or directory found, read its markdown entrypoint (`SKILL.md` for a directory-based skill, or the file itself for a standalone markdown skill) and internalize that guidance before beginning execution.
-    - Otherwise, pop the next item from the **Active Backlog** (defined as the **High Priority Queue** or **Medium Priority Queue**).
-    - **Icebox Boundary:** The **Icebox** is a human-controlled queue. You are strictly forbidden from unilaterally popping items from the Icebox or re-prioritizing items from the Icebox into the active queues.
-    - **Backlog Exhaustion:** If both active queues (High and Medium Priority) are empty, you must NOT proceed to the Icebox. Instead, move immediately to **Phase 4: Dealing with Ambiguity** to escalate the state to the Product Owner.
+3. Read `docs/planning.md`, `docs/state/handover.md`, `docs/state/backlog.md`, and `docs/state/progress.md`. Prefer the handover's **Primary Immediate Next Step** when it names a specific active backlog item.
+4. Select the next unit of work from the **Active Backlog** (the **High Priority Queue**, then the **Medium Priority Queue**).
+   - **Icebox Boundary:** The **Icebox** is a human-controlled queue. You are strictly forbidden from unilaterally popping items from the Icebox or re-prioritizing items from the Icebox into the active queues.
+   - **Backlog Exhaustion:** If both active queues (High and Medium Priority) are empty, you must NOT proceed to the Icebox. Instead, move immediately to **Phase 4: Dealing with Ambiguity** to escalate the state to the Product Owner.
 
 ## Phase 3: Execution & The TDD Loop
 1. Execute the work required for the current task.
 2. If the task involves code, rely on Test Driven Development. The expected workflow is `Red -> Green -> Refactor`.
 3. Stop once a logical boundary is reached (e.g., hitting a blocker, finishing a failing test, or successfully completing a passing implementation).
 
-If at any point you encounter conflicting constraints, undefined requirements, or if the **Active Backlog** is exhausted:
+If at any point you encounter conflicting constraints, undefined requirements, or if the **Active Backlog** is exhausted, go to **Phase 4**. Otherwise continue to **Phase 5**.
+
+## Phase 4: Dealing with Ambiguity
 1. Stop all current work.
 2. Create `docs/state/tbd.md` detailing the problem or the fact that no active tasks remain.
 3. **Icebox Proposal:** If the backlog is exhausted, browse the **Icebox** and propose 1-2 logical next steps in the `tbd.md`, providing context-aware reasoning for why these items should be considered for promotion.
-4. Skip Phase 5 and jump immediately to Phase 6 (Commit and Teardown).
+4. Skip Phase 5. Proceed to Phase 6, which will refuse to commit while `tbd.md` is unresolved.
 
 ## Phase 5: Normal Serialization
 If you reached a logical completion point without an unresolved TBD:

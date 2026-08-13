@@ -6,8 +6,9 @@ Thank you for your interest in improving the Agentic Loop Harness! We welcome co
 
 1. **Suggest Template Refinements**: If you find that the agent is consistently misinterpreting a specific section of the state files, please suggest a change to the matching template in `docs/agent-loop/templates/`.
 2. **Improve Playbooks**: If the human operator instructions are ambiguous or missing a common maintenance step, updates to `outer-loop-playbook.md` are highly valued.
-3. **Enhance Tooling**: Improvements to the PowerShell scripts for scaffolding or health-checking are welcome. Please ensure scripts remain cross-platform (PowerShell Core) where possible.
-4. **Report Bugs**: If the core `skill.md` logic leads to a loop failure or state corruption, please open an issue describing the failure mode and the provider used.
+3. **Enhance Tooling**: Improvements to the Node CLI, PowerShell scripts, or bash counterparts are welcome. Keep PowerShell scripts cross-platform (`pwsh`) and keep `init` / `health` / `run` working without PowerShell.
+4. **Update the changelog**: Add a short note to `CHANGELOG.md` for user-visible changes.
+5. **Report Bugs**: If the core `skill.md` logic leads to a loop failure or state corruption, please open an issue describing the failure mode and the provider used.
 
 ## Contribution Standards
 

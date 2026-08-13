@@ -67,12 +67,25 @@ cp "$TemplatesDir/progress.md" "$StateDir/"
 
 echo "-> Registering agent-loop.md skill..."
 cp docs/agent-loop/skill.md "$SkillsDir/agent-loop.md"
+cp docs/agent-loop/skill.md "$AgentLoopDocsDir/skill.md"
 
 echo "-> Copying agent loop coding standards..."
 cp docs/agent-loop/standards.md "$AgentLoopDocsDir/standards.md"
+if [ -f docs/agent-loop/standards.sample.md ]; then
+    cp docs/agent-loop/standards.sample.md "$AgentLoopDocsDir/standards.sample.md"
+fi
 
 echo "-> Copying outer loop playbook..."
 cp docs/agent-loop/outer-loop-playbook.md "$AgentLoopDocsDir/outer-loop-playbook.md"
+
+echo "-> Copying operator scripts..."
+TargetScriptsDir="$TargetRepo/scripts"
+mkdir -p "$TargetScriptsDir"
+for scriptName in check-health.ps1 check-health.sh run-loop.ps1 run-loop.sh archive-backlog.ps1 inject-skill.ps1; do
+    if [ -f "scripts/$scriptName" ]; then
+        cp "scripts/$scriptName" "$TargetScriptsDir/$scriptName"
+    fi
+done
 
 echo "-> Seeding planning document..."
 cp docs/agent-loop/templates/planning.md "$DocsDir/planning.md"
@@ -86,7 +99,7 @@ if [ ! -d ".git" ]; then
     git commit -m "chore: scaffold trial repo with agent loop skills and state templates" >/dev/null 2>&1
 else
     echo "-> Existing Git repository detected. Staging agent harness files..."
-    git add docs/ .agents/
+    git add docs/ .agents/ scripts/
     git commit -m "chore: integrate agent loop harness" >/dev/null 2>&1
 fi
 
@@ -100,5 +113,6 @@ else
     echo "  1. cd \"$TargetRepo\""
 fi
 echo "  2. Populate docs/planning.md and docs/state/backlog.md"
-echo "  3. Run your agent (e.g., aider --message 'Read docs/agent-loop/skill.md...')"
+echo "  3. Run: git status && bash scripts/check-health.sh"
+echo "  4. grok -p \"Read .agents/skills/agent-loop.md and execute the next run strictly from the repository's local markdown state.\" --always-approve --max-turns 15"
 echo ""

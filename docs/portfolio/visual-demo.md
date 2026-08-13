@@ -11,7 +11,7 @@ Instead, it triggers the **TBD Logic**:
 ### 1. Blocker Detected
 The agent immediately halts all file modifications and creates a new document: `docs/state/tbd.md`.
 
-![Terminal Mockup: Ambiguity Detection](/c:/data/loop-design-build/docs/assets/terminal_tbd_pause.png)
+![Terminal Mockup: Ambiguity Detection](../assets/terminal_tbd_pause.jpg)
 
 ### 2. The TBD Report (Real World Example)
 The following is an actual `tbd.md` from the [Sample-NYCTraffic-Refresh](https://github.com/nikcholer/Sample-NYCTraffic-Refresh) case study:
@@ -44,7 +44,7 @@ A core strength of the harness is **Pre-Flight Locality Checks**. If the reposit
 ### The Blocker in Action
 In the NYC project, the agent detected uncommitted Node 22+ engine updates and a lockfile rewrite that weren't part of the current sprint. To protect the audit trail, it stopped.
 
-![Terminal Mockup: Safety Check Abort](/c:/data/loop-design-build/docs/assets/terminal_git_dirty_safety.png)
+![Terminal Mockup: Safety Check Abort](../assets/terminal_git_dirty_safety.jpg)
 
 Read more in the [Detailed Case Study: Safety Audit](./case-study-safety.md).
 

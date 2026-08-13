@@ -21,7 +21,7 @@ Upon wake-up, the agent inspected the working tree and detected uncommitted chan
 > - Under the agent-loop rules, a successful feature run would commit these unrelated infrastructure changes into its own commit history.
 > - **Audit Trail Risk**: I cannot confidently start the next backlog item while knowing these pre-existing changes should be included in the final commit.
 
-![Mockup: The agent sees the dirty git status](../assets/terminal_git_dirty_safety.png)
+![Mockup: The agent sees the dirty git status](../assets/terminal_git_dirty_safety.jpg)
 
 ---
 
