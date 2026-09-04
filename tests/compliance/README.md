@@ -10,9 +10,10 @@ From the repo root:
 npm run compliance
 # or
 node tests/compliance/check.js
+node tests/compliance/run-loop.test.js
 ```
 
-The script checks that required files exist, `skill.md` has Phase 1–6, `package.json` points at a real `scripts/cli.js`, and the canonical loop prompt appears in the README and playbook.
+`check.js` validates packaging, Phase 1–6 numbering, and the canonical loop prompt. `run-loop.test.js` exercises the outer-loop success gate in a temp git repo: press on when clean, halt on TBD, halt on a dirty tree after exit 0.
 
 ## Expected behaviour across providers
 

@@ -122,6 +122,13 @@ if (help.status === 0 && help.stdout.includes('agentic-loop') && help.stdout.inc
   fail('cli.js help did not succeed');
 }
 
+const cliSource = read('scripts/cli.js');
+if (cliSource.includes('left uncommitted changes') && cliSource.includes('tbdPairReady')) {
+  ok('cli.js run loop gates on clean worktree and TBD pair');
+} else {
+  fail('cli.js run loop is missing the success gate (clean tree + TBD)');
+}
+
 const tbd = read('docs/agent-loop/templates/tbd.md');
 if (tbd.includes('tbd-response.md')) {
   ok('tbd template names the matching response file');

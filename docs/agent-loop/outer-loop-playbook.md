@@ -196,16 +196,31 @@ Use `opencode run`, not `opencode .`, for non-interactive execution. `--log-leve
 
 ## Bounded Outer Loop
 
-To run several iterations without giving up the human stop point:
+The inner loop is still one backlog item. The outer loop removes you as a re-run button: if the previous run actually succeeded, it starts the next one.
 
 ```bash
-npx @nikcholer/agentic-loop-harness run --provider grok --max-runs 5
+npx @nikcholer/agentic-loop-harness run --provider grok --max-runs 15
 # or, from a clone:
-pwsh -File scripts/run-loop.ps1 -Provider grok -MaxRuns 5
-# bash scripts/run-loop.sh --provider grok --max-runs 5
+pwsh -File scripts/run-loop.ps1 -Provider grok -MaxRuns 15
+# bash scripts/run-loop.sh --provider grok --max-runs 15
 ```
 
-The runner health-checks once at the start (unless a TBD is already open), invokes the provider once per iteration, and **stops** when `docs/state/tbd.md` appears without a response. It does not resolve blockers. Pass `--wait-for-response` only for attended demos where you will drop `tbd-response.md` while the runner is parked.
+A run counts as success only when **all** of these hold:
+
+1. the provider exited 0,
+2. there is no unresolved `docs/state/tbd.md`,
+3. the worktree is clean (`git status --porcelain` empty), meaning Phase 6 committed — or there was honestly nothing to commit.
+
+The runner then health-checks and starts the next inner loop. `--max-runs` is a safety cap, not a target.
+
+It **halts** when:
+
+- the agent publishes an unresolved `tbd.md` (ambiguity, dirty-tree judgment, or backlog exhausted),
+- the provider exits non-zero,
+- the provider exits 0 but leaves uncommitted files (a harness failure: do not start the next item),
+- or the cap is reached.
+
+It does not resolve blockers and does not promote Icebox items. Pass `--wait-for-response` only for attended demos where you will drop `tbd-response.md` while the runner is parked. Default for real use is: press on through greens, stop and wait for you when it is not green.
 
 ## ACP and Structured Output
 
@@ -221,12 +236,12 @@ The record of a run is still:
 
 Use whichever provider is appropriate for the next run. The provider choice is not part of the harness state model. The important invariant is that the next agent reads the same local markdown context and performs the next bounded task.
 
-After any run:
+After any run the outer-loop runner already checks `git status` and will not start the next item unless the tree is clean. If you are invoking the provider by hand instead of `run`:
 - check `git status`,
 - confirm the state files reflect the completed work,
 - verify that the commit actually landed before starting the next loop.
 
-If a provider fails to commit automatically, commit manually with a precise semantic message before continuing.
+If a provider fails to commit automatically, treat that as a failed run. Commit manually only after you have reviewed the leftover files; do not let the outer loop press on past them.
 
 If an agent claims it left a successful run uncommitted due only to a generic "higher-priority CLI instruction," treat that as a harness-execution failure rather than a valid outcome. The runtime skill requires a commit unless the run stopped behind an unresolved `tbd.md` or an explicitly escalated dirty-worktree ambiguity.
 

@@ -31,9 +31,19 @@ if ($MaxRuns -lt 1) {
 $resolvedCommand = if ([string]::IsNullOrWhiteSpace($Command)) { $ProviderCommands[$Provider] } else { $Command }
 $tbdPath = Join-Path -Path $RepositoryRoot -ChildPath 'docs/state/tbd.md'
 $tbdResponsePath = Join-Path -Path $RepositoryRoot -ChildPath 'docs/state/tbd-response.md'
+$healthScript = Join-Path -Path $PSScriptRoot -ChildPath 'check-health.ps1'
 
 function Test-TbdBlocksRun {
     return (Test-Path -Path $tbdPath) -and -not (Test-Path -Path $tbdResponsePath)
+}
+
+function Test-TbdPairReady {
+    return (Test-Path -Path $tbdPath) -and (Test-Path -Path $tbdResponsePath)
+}
+
+function Get-RepositoryChanges {
+    $statusOutput = & git -C $RepositoryRoot status --porcelain
+    return @($statusOutput | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
 }
 
 function Wait-ForTbdResponse {
@@ -43,11 +53,12 @@ function Wait-ForTbdResponse {
     }
 }
 
-if (-not (Test-TbdBlocksRun)) {
-    & (Join-Path -Path $PSScriptRoot -ChildPath 'check-health.ps1') -RepositoryRoot $RepositoryRoot
-    if ($LASTEXITCODE -ne 0) {
-        exit $LASTEXITCODE
+function Stop-DirtyAfterSuccess {
+    Write-Host 'Stop: provider exited 0 but left uncommitted changes. Treat this as a harness failure, not a green run.'
+    foreach ($line in (Get-RepositoryChanges)) {
+        Write-Host "  $line"
     }
+    exit 1
 }
 
 for ($run = 1; $run -le $MaxRuns; $run++) {
@@ -57,6 +68,13 @@ for ($run = 1; $run -le $MaxRuns; $run++) {
             Wait-ForTbdResponse
         } else {
             exit 0
+        }
+    }
+
+    if (-not (Test-TbdPairReady)) {
+        & $healthScript -RepositoryRoot $RepositoryRoot
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
         }
     }
 
@@ -80,6 +98,10 @@ for ($run = 1; $run -le $MaxRuns; $run++) {
         }
         exit 0
     }
+
+    if ((Get-RepositoryChanges).Count -gt 0) {
+        Stop-DirtyAfterSuccess
+    }
 }
 
-Write-Host "Completed $MaxRuns run(s) without an unresolved TBD."
+Write-Host "Completed $MaxRuns successful run(s). Outer loop stopped at the --max-runs cap."

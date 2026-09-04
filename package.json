@@ -1,6 +1,6 @@
 {
   "name": "@nikcholer/agentic-loop-harness",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A provider-agnostic harness for bounded, human-in-the-loop AI agent workflows.",
   "bin": {
     "agentic-loop": "./scripts/cli.js"
@@ -17,7 +17,7 @@
   "scripts": {
     "init": "node ./scripts/cli.js init",
     "health": "node ./scripts/cli.js health",
-    "compliance": "node ./tests/compliance/check.js",
+    "compliance": "node ./tests/compliance/check.js && node ./tests/compliance/run-loop.test.js",
     "init:ps1": "pwsh -ExecutionPolicy Bypass -File ./init-trial.ps1",
     "init:sh": "bash ./init-trial.sh"
   },

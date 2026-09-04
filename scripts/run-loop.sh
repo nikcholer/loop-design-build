@@ -18,6 +18,7 @@ while [[ $# -gt 0 ]]; do
         --wait-for-response) WaitForResponse=1; shift ;;
         -h|--help)
             echo "Usage: run-loop.sh [--provider grok|claude|gemini|codex|aider|opencode] [--max-runs N] [--command \"...\"] [--wait-for-response]"
+            echo "Continues only after exit 0, a clean worktree, and no unresolved tbd.md."
             exit 0
             ;;
         *)
@@ -53,6 +54,14 @@ tbd_blocks_run() {
     [[ -f "$TbdPath" && ! -f "$TbdResponsePath" ]]
 }
 
+tbd_pair_ready() {
+    [[ -f "$TbdPath" && -f "$TbdResponsePath" ]]
+}
+
+worktree_dirty() {
+    [[ -n "$(git -C "$RepositoryRoot" status --porcelain)" ]]
+}
+
 wait_for_response() {
     echo "Waiting for docs/state/tbd-response.md ... (Ctrl+C to stop)"
     while [[ ! -f "$TbdResponsePath" ]]; do
@@ -60,9 +69,11 @@ wait_for_response() {
     done
 }
 
-if ! tbd_blocks_run; then
-    bash "$(dirname "$0")/check-health.sh" "$RepositoryRoot"
-fi
+fail_dirty_after_success() {
+    echo "Stop: provider exited 0 but left uncommitted changes. Treat this as a harness failure, not a green run." >&2
+    git -C "$RepositoryRoot" status --porcelain >&2
+    exit 1
+}
 
 for ((run=1; run<=MaxRuns; run++)); do
     if tbd_blocks_run; then
@@ -72,6 +83,10 @@ for ((run=1; run<=MaxRuns; run++)); do
         else
             exit 0
         fi
+    fi
+
+    if ! tbd_pair_ready; then
+        bash "$(dirname "$0")/check-health.sh" "$RepositoryRoot"
     fi
 
     echo ""
@@ -89,6 +104,10 @@ for ((run=1; run<=MaxRuns; run++)); do
         fi
         exit 0
     fi
+
+    if worktree_dirty; then
+        fail_dirty_after_success
+    fi
 done
 
-echo "Completed $MaxRuns run(s) without an unresolved TBD."
+echo "Completed $MaxRuns successful run(s). Outer loop stopped at the --max-runs cap."

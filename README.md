@@ -124,7 +124,7 @@ If `docs/state/tbd.md` exists without a matching `tbd-response.md`, do not start
 | --- | --- |
 | `npx @nikcholer/agentic-loop-harness init` | Scaffold a trial repo or inject the harness into an existing one |
 | `npx @nikcholer/agentic-loop-harness health` | Fail closed on unresolved TBD or a dirty worktree |
-| `npx @nikcholer/agentic-loop-harness run --provider grok` | Run N headless iterations and stop on `tbd.md` |
+| `npx @nikcholer/agentic-loop-harness run --provider grok --max-runs 15` | Keep invoking while runs succeed; stop on TBD, error, dirty tree, or the cap |
 | `scripts/check-health.ps1` / `scripts/check-health.sh` | Same health gate without Node |
 | `scripts/run-loop.ps1` / `scripts/run-loop.sh` | Same bounded outer loop without Node |
 | `scripts/archive-backlog.ps1` | Archive completed backlog sections (human-only) |

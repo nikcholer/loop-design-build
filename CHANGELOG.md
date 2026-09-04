@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1 — 2026-08-13
+
+### Changed
+
+- Outer-loop `run` now presses on only after a real success: provider exit 0, clean worktree, and no unresolved `tbd.md`. A clean exit that leaves uncommitted files is a harness failure and stops the loop. `--max-runs` remains the safety cap.
+
 ## 1.1.0 — 2026-08-13
 
 Portfolio and operator refresh. The runtime contract is unchanged: Git-tracked markdown state, one bounded run, stop rather than guess.

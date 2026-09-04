@@ -25,8 +25,11 @@ Usage:
   agentic-loop init [TrialName] [--target <path>]
   agentic-loop health [--cwd <path>] [--verify <command> [args...]]
   agentic-loop run --provider <name> [--max-runs N] [--cwd <path>] [--wait-for-response]
-  agentic-loop run --command "<shell command>" [--max-runs N] [--cwd <path>]
+  agentic-loop run --command "<shell command>" [--max-runs N] [--cwd <path>] [--wait-for-response]
   agentic-loop help
+
+  run continues only after a real success: provider exit 0, clean worktree, no unresolved tbd.md.
+  --max-runs is a safety cap (default 3). --wait-for-response parks on TBD for attended demos.
 
 Providers: ${Object.keys(PROVIDER_COMMANDS).join(', ')}
 
@@ -333,10 +336,31 @@ function checkHealth(flags) {
   console.log('Ready');
 }
 
+function tbdPathFor(repositoryRoot) {
+  return path.join(repositoryRoot, 'docs', 'state', 'tbd.md');
+}
+
+function tbdResponsePathFor(repositoryRoot) {
+  return path.join(repositoryRoot, 'docs', 'state', 'tbd-response.md');
+}
+
 function tbdBlocksRun(repositoryRoot) {
-  const tbdPath = path.join(repositoryRoot, 'docs', 'state', 'tbd.md');
-  const tbdResponsePath = path.join(repositoryRoot, 'docs', 'state', 'tbd-response.md');
-  return fs.existsSync(tbdPath) && !fs.existsSync(tbdResponsePath);
+  return fs.existsSync(tbdPathFor(repositoryRoot)) && !fs.existsSync(tbdResponsePathFor(repositoryRoot));
+}
+
+function tbdPairReady(repositoryRoot) {
+  return fs.existsSync(tbdPathFor(repositoryRoot)) && fs.existsSync(tbdResponsePathFor(repositoryRoot));
+}
+
+function failDirtyAfterSuccess(repositoryRoot) {
+  const dirty = porcelainStatus(repositoryRoot);
+  process.stderr.write(
+    'Stop: provider exited 0 but left uncommitted changes. Treat this as a harness failure, not a green run.\n'
+  );
+  for (const line of dirty) {
+    process.stderr.write(`  ${line}\n`);
+  }
+  process.exit(1);
 }
 
 function sleep(ms) {
@@ -344,11 +368,28 @@ function sleep(ms) {
 }
 
 function waitForResponse(repositoryRoot) {
-  const tbdResponsePath = path.join(repositoryRoot, 'docs', 'state', 'tbd-response.md');
   console.log('Waiting for docs/state/tbd-response.md ... (Ctrl+C to stop)');
-  while (!fs.existsSync(tbdResponsePath)) {
+  while (!fs.existsSync(tbdResponsePathFor(repositoryRoot))) {
     sleep(5000);
   }
+}
+
+function invokeProvider(flags, commandParts, repositoryRoot) {
+  if (flags.command) {
+    return spawnSync(flags.command, {
+      cwd: repositoryRoot,
+      encoding: 'utf8',
+      stdio: 'inherit',
+      shell: true,
+    });
+  }
+
+  return spawnSync(commandParts[0], commandParts.slice(1), {
+    cwd: repositoryRoot,
+    encoding: 'utf8',
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+  });
 }
 
 function runLoop(flags) {
@@ -371,10 +412,6 @@ function runLoop(flags) {
     fail('Pass --provider <name> or --command "<shell command>".');
   }
 
-  if (!tbdBlocksRun(repositoryRoot)) {
-    checkHealth({ cwd: repositoryRoot });
-  }
-
   for (let run = 1; run <= maxRuns; run += 1) {
     if (tbdBlocksRun(repositoryRoot)) {
       console.log(`Stop: unresolved TBD at docs/state/tbd.md (before run ${run}).`);
@@ -385,20 +422,12 @@ function runLoop(flags) {
       }
     }
 
+    if (!tbdPairReady(repositoryRoot)) {
+      checkHealth({ cwd: repositoryRoot });
+    }
+
     console.log(`\n=== Loop run ${run} of ${maxRuns} ===`);
-    const result = flags.command
-      ? spawnSync(flags.command, {
-          cwd: repositoryRoot,
-          encoding: 'utf8',
-          stdio: 'inherit',
-          shell: true,
-        })
-      : spawnSync(commandParts[0], commandParts.slice(1), {
-          cwd: repositoryRoot,
-          encoding: 'utf8',
-          stdio: 'inherit',
-          shell: process.platform === 'win32',
-        });
+    const result = invokeProvider(flags, commandParts, repositoryRoot);
 
     if (result.status !== 0) {
       fail(`Provider command exited with status ${result.status}.`);
@@ -412,9 +441,13 @@ function runLoop(flags) {
       }
       process.exit(0);
     }
+
+    if (porcelainStatus(repositoryRoot).length > 0) {
+      failDirtyAfterSuccess(repositoryRoot);
+    }
   }
 
-  console.log(`Completed ${maxRuns} run(s) without an unresolved TBD.`);
+  console.log(`Completed ${maxRuns} successful run(s). Outer loop stopped at the --max-runs cap.`);
 }
 
 function main() {
