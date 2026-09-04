@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.2 — 2026-08-13
+
+### Fixed
+
+- Windows `--provider` invocations no longer pass an argv array through `shell: true`, which split the headless prompt into separate arguments.
+- PowerShell and bash outer-loop runners now fail closed if `git status` itself fails, instead of treating empty stdout as a clean tree. `check-health.ps1` uses the same Git exit-code check.
+
 ## 1.1.1 — 2026-08-13
 
 ### Changed

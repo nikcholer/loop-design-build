@@ -34,7 +34,10 @@ if [[ -f "$RepositoryRoot/$TbdRelativePath" && ! -f "$RepositoryRoot/$TbdRespons
     issues+=("Unresolved blocker: docs/state/tbd.md exists without docs/state/tbd-response.md.")
 fi
 
-status_output="$(git -C "$RepositoryRoot" status --porcelain)"
+if ! status_output="$(git -C "$RepositoryRoot" status --porcelain)"; then
+    echo "git status failed. Cannot treat the worktree as clean."
+    exit 1
+fi
 if [[ -n "$status_output" ]]; then
     issues+=("Uncommitted changes detected in the repository.")
 fi

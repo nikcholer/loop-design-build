@@ -62,6 +62,41 @@ function removeDir(dir) {
   fs.rmSync(dir, { recursive: true, force: true });
 }
 
+function writeFakeGrok(binDir) {
+  fs.mkdirSync(binDir, { recursive: true });
+  const dumpJs = path.join(binDir, 'grok-dump.js');
+  fs.writeFileSync(
+    dumpJs,
+    "require('fs').writeFileSync('provider-argv.json', JSON.stringify(process.argv.slice(2)));\n"
+  );
+
+  if (process.platform === 'win32') {
+    fs.writeFileSync(
+      path.join(binDir, 'grok.cmd'),
+      `@echo off\r\n${quote(process.execPath)} ${quote(dumpJs)} %*\r\n`
+    );
+  } else {
+    const grokPath = path.join(binDir, 'grok');
+    fs.writeFileSync(
+      grokPath,
+      `#!/bin/sh\nexec ${quote(process.execPath)} ${quote(dumpJs)} "$@"\n`
+    );
+    fs.chmodSync(grokPath, 0o755);
+  }
+}
+
+const LOOP_PROMPT =
+  'Read .agents/skills/agent-loop.md and execute the next run strictly from the repository\'s local markdown state.';
+
+function writeUngitScript(repo) {
+  fs.writeFileSync(
+    path.join(repo, 'ungit.js'),
+    "require('fs').rmSync(require('path').join(process.cwd(), '.git'), { recursive: true, force: true });\n"
+  );
+  git(repo, ['add', 'ungit.js']);
+  git(repo, ['commit', '-m', 'add ungit']);
+}
+
 console.log('Outer-loop success-gate tests\n');
 
 const successRepo = makeRepo();
@@ -121,6 +156,95 @@ try {
   }
 } finally {
   removeDir(tbdRepo);
+}
+
+const argvRepo = makeRepo();
+const fakeBin = fs.mkdtempSync(path.join(os.tmpdir(), 'fake-grok-'));
+try {
+  writeFakeGrok(fakeBin);
+  const result = spawnSync(process.execPath, [
+    CLI,
+    'run',
+    '--cwd',
+    argvRepo,
+    '--max-runs',
+    '1',
+    '--provider',
+    'grok',
+  ], {
+    encoding: 'utf8',
+    cwd: argvRepo,
+    env: {
+      ...process.env,
+      PATH: `${fakeBin}${path.delimiter}${process.env.PATH}`,
+    },
+  });
+  const argvFile = path.join(argvRepo, 'provider-argv.json');
+  if (!fs.existsSync(argvFile)) {
+    fail(`--provider grok did not invoke the stand-in (status ${result.status}): ${result.stdout}\n${result.stderr}`);
+  } else {
+    const argv = JSON.parse(fs.readFileSync(argvFile, 'utf8'));
+    if (argv.includes(LOOP_PROMPT) && argv.includes('-p')) {
+      ok('--provider grok passes the headless prompt as a single argument');
+    } else {
+      fail(`--provider grok split or dropped the prompt: ${JSON.stringify(argv)}`);
+    }
+  }
+} finally {
+  removeDir(argvRepo);
+  removeDir(fakeBin);
+}
+
+const goneRepo = makeRepo();
+try {
+  writeUngitScript(goneRepo);
+  const result = runCli(goneRepo, 'ungit.js', 1);
+  const output = `${result.stdout}\n${result.stderr}`;
+  if (result.status !== 0 && /git status failed|not a git repository/i.test(output)) {
+    ok('Node runner fails closed when git status cannot inspect the worktree');
+  } else {
+    fail(`Node git-gone path should fail (status ${result.status}): ${output}`);
+  }
+} finally {
+  removeDir(goneRepo);
+}
+
+const pwshName = ['pwsh', 'powershell'].find((name) => {
+  const probe = spawnSync(name, ['-NoProfile', '-Command', 'exit 0'], { encoding: 'utf8' });
+  return probe.status === 0;
+});
+
+if (pwshName) {
+  const psRepo = makeRepo();
+  try {
+    writeUngitScript(psRepo);
+    const command = `${quote(process.execPath)} ${quote(path.join(psRepo, 'ungit.js'))}`;
+    const result = spawnSync(pwshName, [
+      '-NoProfile',
+      '-File',
+      path.resolve(__dirname, '..', '..', 'scripts', 'run-loop.ps1'),
+      '-RepositoryRoot',
+      psRepo,
+      '-MaxRuns',
+      '1',
+      '-Command',
+      command,
+    ], {
+      encoding: 'utf8',
+      cwd: psRepo,
+    });
+    const output = `${result.stdout}\n${result.stderr}`;
+    const claimedSuccess = /Completed 1 successful run/i.test(output);
+    if (result.status !== 0 && !claimedSuccess && /git status failed|not a git repository/i.test(output)) {
+      ok(`PowerShell runner fails closed when git status cannot inspect the worktree (${pwshName})`);
+    } else {
+      fail(`PowerShell git-gone path should fail (status ${result.status}): ${output}`);
+    }
+  } finally {
+    removeDir(psRepo);
+  }
+} else {
+  ok('skipped PowerShell git-gone test (pwsh/powershell not on PATH)');
 }
 
 console.log('');

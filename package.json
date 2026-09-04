@@ -1,6 +1,6 @@
 {
   "name": "@nikcholer/agentic-loop-harness",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A provider-agnostic harness for bounded, human-in-the-loop AI agent workflows.",
   "bin": {
     "agentic-loop": "./scripts/cli.js"

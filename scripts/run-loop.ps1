@@ -43,6 +43,9 @@ function Test-TbdPairReady {
 
 function Get-RepositoryChanges {
     $statusOutput = & git -C $RepositoryRoot status --porcelain
+    if ($LASTEXITCODE -ne 0) {
+        throw "git status failed (exit $LASTEXITCODE). Cannot treat the worktree as clean."
+    }
     return @($statusOutput | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
 }
 

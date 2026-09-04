@@ -59,7 +59,14 @@ tbd_pair_ready() {
 }
 
 worktree_dirty() {
-    [[ -n "$(git -C "$RepositoryRoot" status --porcelain)" ]]
+    local status_output=""
+    local status_exit=0
+    status_output="$(git -C "$RepositoryRoot" status --porcelain)" && status_exit=0 || status_exit=$?
+    if [[ "$status_exit" -ne 0 ]]; then
+        echo "git status failed (exit $status_exit). Cannot treat the worktree as clean." >&2
+        exit 1
+    fi
+    [[ -n "$status_output" ]]
 }
 
 wait_for_response() {

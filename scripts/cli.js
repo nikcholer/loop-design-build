@@ -374,22 +374,39 @@ function waitForResponse(repositoryRoot) {
   }
 }
 
+function quoteForWindowsCmd(arg) {
+  const value = String(arg);
+  if (value === '') {
+    return '""';
+  }
+  if (!/[\s"&<>|^()]/.test(value)) {
+    return value;
+  }
+  return `"${value.replace(/"/g, '""')}"`;
+}
+
 function invokeProvider(flags, commandParts, repositoryRoot) {
+  const options = {
+    cwd: repositoryRoot,
+    encoding: 'utf8',
+    stdio: 'inherit',
+  };
+
   if (flags.command) {
-    return spawnSync(flags.command, {
-      cwd: repositoryRoot,
-      encoding: 'utf8',
-      stdio: 'inherit',
+    return spawnSync(flags.command, { ...options, shell: true });
+  }
+
+  // Never pass an argv array through shell:true. cmd.exe re-tokenizes and
+  // splits the -p prompt on spaces. On Windows, quote into one command line
+  // so .cmd/.ps1 shims still run. On Unix, spawn argv directly.
+  if (process.platform === 'win32') {
+    return spawnSync(commandParts.map(quoteForWindowsCmd).join(' '), {
+      ...options,
       shell: true,
     });
   }
 
-  return spawnSync(commandParts[0], commandParts.slice(1), {
-    cwd: repositoryRoot,
-    encoding: 'utf8',
-    stdio: 'inherit',
-    shell: process.platform === 'win32',
-  });
+  return spawnSync(commandParts[0], commandParts.slice(1), options);
 }
 
 function runLoop(flags) {

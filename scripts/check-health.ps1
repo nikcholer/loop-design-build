@@ -57,6 +57,9 @@ function Test-GitRepository {
     )
 
     & git -C $RepositoryRootPath $GitRevParseCommand $GitRepositoryCheckArgument | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Not a git repository: $RepositoryRootPath"
+    }
 }
 
 function Test-TbdState {
@@ -84,6 +87,9 @@ function Get-RepositoryChanges {
     )
 
     $statusOutput = & git -C $RepositoryRootPath $GitStatusCommand $GitStatusPorcelainArgument
+    if ($LASTEXITCODE -ne 0) {
+        throw "git status failed (exit $LASTEXITCODE). Cannot treat the worktree as clean."
+    }
     return @($statusOutput | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
 }
 

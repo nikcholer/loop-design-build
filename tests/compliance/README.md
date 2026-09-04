@@ -13,7 +13,7 @@ node tests/compliance/check.js
 node tests/compliance/run-loop.test.js
 ```
 
-`check.js` validates packaging, Phase 1–6 numbering, and the canonical loop prompt. `run-loop.test.js` exercises the outer-loop success gate in a temp git repo: press on when clean, halt on TBD, halt on a dirty tree after exit 0.
+`check.js` validates packaging, Phase 1–6 numbering, and the canonical loop prompt. `run-loop.test.js` exercises the outer-loop success gate in a temp git repo: press on when clean, halt on TBD, halt on a dirty tree after exit 0, keep the `--provider` prompt as one argument, and fail closed if Git itself cannot inspect the tree.
 
 ## Expected behaviour across providers
 
